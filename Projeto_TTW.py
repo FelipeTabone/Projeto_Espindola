@@ -201,7 +201,7 @@ def criar_botao_gradiente(parent, text, command):
     desenhar_gradiente(1)
 
     # Adiciona texto ao botão
-    texto_id = canvas.create_text(100, 30, text=text, fill='black', font=('Helvetica', 12, 'bold'), tags="text")
+    texto_id = canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
 
     # Função para animação de pressionar e chamar o comando
     def on_click(event):
@@ -214,12 +214,12 @@ def criar_botao_gradiente(parent, text, command):
         canvas.delete("text")
         desenhar_gradiente(1.2)
         canvas.create_rectangle(0, 0, 200, 60, fill='white', outline='')
-        canvas.create_text(100, 30, text=text, fill='black', font=('Helvetica', 12, 'bold'), tags="text")
+        canvas.create_text(100, 30, text=text, fill='black', font=('Futura', 12, 'bold'), tags="text")
 
     def on_leave(event):
         canvas.delete("text")
         desenhar_gradiente(1)
-        canvas.create_text(100, 30, text=text, fill='black', font=('Helvetica', 12, 'bold'), tags="text")
+        canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
 
     # Liga os eventos de mouse ao canvas
     canvas.bind("<Button-1>", on_click)
@@ -243,7 +243,7 @@ def criar_botao_gradiente_vermelho(parent, text, command):
     desenhar_gradiente(1)
 
     # Adiciona texto ao botão
-    texto_id = canvas.create_text(100, 30, text=text, fill='black', font=('Helvetica', 12, 'bold'), tags="text")
+    texto_id = canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
 
     # Função para animação de pressionar e chamar o comando
     def on_click(event):
@@ -256,12 +256,12 @@ def criar_botao_gradiente_vermelho(parent, text, command):
         canvas.delete("text")
         desenhar_gradiente(1.2)
         canvas.create_rectangle(0, 0, 200, 60, fill='white', outline='')
-        canvas.create_text(100, 30, text=text, fill='black', font=('Helvetica', 12, 'bold'), tags="text")
+        canvas.create_text(100, 30, text=text, fill='black', font=('Futura', 12, 'bold'), tags="text")
 
     def on_leave(event):
         canvas.delete("text")
         desenhar_gradiente(1)
-        canvas.create_text(100, 30, text=text, fill='black', font=('Helvetica', 12, 'bold'), tags="text")
+        canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
 
     # Liga os eventos de mouse ao canvas
     canvas.bind("<Button-1>", on_click)
@@ -328,7 +328,7 @@ def tela_login():
     frame_botao.pack(side=tk.RIGHT)  # Alinha à direita
 
     # Botão para alternar tela cheia/janela
-    fullscreen_button = tk.Button(frame_botao, text="Tela Cheia/Janela", command=toggle_fullscreen, bg="gray", fg="black")
+    fullscreen_button = tk.Button(frame_botao, text="Tela Cheia/Janela", command=toggle_fullscreen, bg="green", fg="black")
     fullscreen_button.pack(padx=5, pady=5)
 
     # Frame pai para centralizar o frame_login (sem cor de fundo)
@@ -340,14 +340,14 @@ def tela_login():
     frame_login.pack(pady=10)
 
     # Adicionando o título "Login" dentro do frame_login
-    label_login = tk.Label(frame_login, text="Login", font=('Helvetica', 28, 'bold'), bg="black", fg="white")
+    label_login = tk.Label(frame_login, text="Login", font=('Futura', 28, 'bold'), bg="black", fg="white")
     label_login.grid(row=0, columnspan=2, pady=10)
 
-    tk.Label(frame_login, text="Usuário:", bg="black", fg="#FFFFFF", font=('Helvetica', 12)).grid(row=1, column=0, padx=5, pady=5, sticky='e')
+    tk.Label(frame_login, text="Usuário:", bg="black", fg="#FFFFFF", font=('Futura', 12)).grid(row=1, column=0, padx=5, pady=5, sticky='e')
     entry_usuario = tk.Entry(frame_login, font=('Helvetica', 12))
     entry_usuario.grid(row=1, column=1, padx=5, pady=5)
 
-    tk.Label(frame_login, text="Senha:", bg="black", fg="#FFFFFF", font=('Helvetica', 12)).grid(row=2, column=0, padx=5, pady=5, sticky='e')
+    tk.Label(frame_login, text="Senha:", bg="black", fg="#FFFFFF", font=('Futura', 12)).grid(row=2, column=0, padx=5, pady=5, sticky='e')
     entry_senha = tk.Entry(frame_login, show="*", font=('Helvetica', 12))
     entry_senha.grid(row=2, column=1, padx=5, pady=5)
 
@@ -362,10 +362,10 @@ def tela_login():
             messagebox.showerror("Erro", "Usuário ou senha inválidos.")
 
     # Adicionando os botões no mesmo frame de login
-    botao_sair = tk.Button(frame_login, text="Sair", command=app.quit, bg='lightcoral', fg='black', font=('Helvetica', 12, 'bold'))
+    botao_sair = tk.Button(frame_login, text="Sair", command=app.quit, bg='lightcoral', fg='black', font=('Futura', 12, 'bold'))
     botao_sair.grid(row=3, column=0, padx=5, pady=10, sticky='ew')
     
-    botao_entrar = tk.Button(frame_login, text="Entrar", command=validar_login, bg='lightgreen', fg='black', font=('Helvetica', 12, 'bold'))
+    botao_entrar = tk.Button(frame_login, text="Entrar", command=validar_login, bg='lightgreen', fg='black', font=('Futura', 12, 'bold'))
     botao_entrar.grid(row=3, column=1, padx=5, pady=10, sticky='ew')
 
     # Ajustar as colunas para expandirem igualmente
@@ -420,7 +420,7 @@ def criar_tela_principal():
     frame_botao.pack(side=tk.RIGHT)  # Alinha à direita
 
     # Botão para alternar tela cheia/janela
-    fullscreen_button = tk.Button(frame_botao, text="Tela Cheia/Janela", command=toggle_fullscreen, bg="gray", fg="black")
+    fullscreen_button = tk.Button(frame_botao, text="Tela Cheia/Janela", command=toggle_fullscreen, bg="green", fg="black")
     fullscreen_button.pack(padx=5, pady=5)
 
     # Frame pai para centralizar o content_frame
@@ -431,7 +431,7 @@ def criar_tela_principal():
     content_frame = tk.Frame(frame_pai, bg="black")  # Definindo a cor de fundo como preto
     content_frame.pack(pady=0)  # Removendo o preenchimento vertical
 
-    label_selecao = tk.Label(content_frame, text="Escolha uma opção:", font=('Arial', 24, 'bold'), bg="black", fg="white")
+    label_selecao = tk.Label(content_frame, text="Escolha uma opção:", font=('Futura', 24, 'bold'), bg="black", fg="white")
     label_selecao.pack(pady=0)  # Removendo o preenchimento vertical
 
     # Frame para os botões
@@ -517,290 +517,52 @@ def tela_controle_estoque():
     label_titulo = tk.Label(content_frame, text="Controle de Estoque", font=('Arial', 24, 'bold'), bg="dimgray", fg="black")
     label_titulo.pack(pady=10)
 
-    # Frame para os campos de entrada
-    frame_entrada = tk.Frame(content_frame, bg="dimgray")
-    frame_entrada.pack(pady=5)
-
-    # Entradas de dados
-    tk.Label(frame_entrada, text="Produto:", bg="dimgray").grid(row=0, column=0, padx=5, pady=5)
-    entry_produto = tk.Entry(frame_entrada)
-    entry_produto.grid(row=0, column=1, padx=5, pady=5)
-
-    tk.Label(frame_entrada, text="Quantidade:", bg="dimgray").grid(row=1, column=0, padx=5, pady=5)
-    entry_quantidade = tk.Entry(frame_entrada)
-    entry_quantidade.grid(row=1, column=1, padx=5, pady=5)
-
-    tk.Label(frame_entrada, text="Valor de Compra: (Unidade)", bg="dimgray").grid(row=2, column=0, padx=5, pady=5)
-    entry_valor = tk.Entry(frame_entrada)
-    entry_valor.grid(row=2, column=1, padx=5, pady=5)
-
     # Frame para os botões
     frame_botoes = tk.Frame(content_frame, bg="dimgray")
     frame_botoes.pack(pady=10)
-    
-    # Função para aumentar estoque
-    def aumentar_estoque():
-        selected_item = tree.selection()
-        if not selected_item:
-            messagebox.showerror("Erro", "Selecione um produto para aumentar o estoque.")
-            return
-
-        # Obtendo o produto atual
-        produto_selecionado = tree.item(selected_item)
-        produto_id = produto_selecionado['values'][0]
-        produto_nome = produto_selecionado['values'][1]
-        quantidade_atual = int(produto_selecionado['values'][2])
-
-        # Cria uma nova janela para coletar a quantidade a ser adicionada
-        janela_aumento = tk.Toplevel(app)
-        janela_aumento.title("Aumentar Estoque")
-
-        tk.Label(janela_aumento, text=f"Produto: {produto_nome}").pack(pady=5)
-
-        tk.Label(janela_aumento, text="Quantidade a adicionar:").pack(pady=5)
-        entry_quantidade_aumento = tk.Entry(janela_aumento)
-        entry_quantidade_aumento.pack(pady=5)
-
-        def confirmar_aumento():
-            try:
-                quantidade_a_adicionar = int(entry_quantidade_aumento.get())
-                if quantidade_a_adicionar <= 0:
-                    messagebox.showerror("Erro", "Quantidade deve ser maior que zero.")
-                    return
-
-                nova_quantidade = quantidade_atual + quantidade_a_adicionar
-                tree.item(selected_item, values=(produto_id, produto_nome, nova_quantidade, produto_selecionado['values'][3]))
-
-                # Salvar a nova quantidade no CSV
-                salvar_csv_atualizado()
-
-                messagebox.showinfo("Sucesso", f"Estoque de '{produto_nome}' aumentado em {quantidade_a_adicionar} unidades.")
-                janela_aumento.destroy()  # Fecha a janela de aumento
-
-            except ValueError:
-                messagebox.showerror("Erro", "Por favor, insira uma quantidade válida.")
-
-        # Botão para confirmar o aumento
-        button_confirmar = tk.Button(janela_aumento, text="Confirmar Aumento", command=confirmar_aumento, bg='lightgreen', fg='black')
-        button_confirmar.pack(pady=10)
-
-        # Botão para cancelar
-        button_cancelar = tk.Button(janela_aumento, text="Cancelar", command=janela_aumento.destroy, bg='lightcoral', fg='black')
-        button_cancelar.pack(pady=5)
 
     # Botão de retornar
     button_retornar = tk.Button(frame_botoes, text="Retornar", command=criar_tela_principal, bg='lightcoral', fg='black')
     button_retornar.pack(side=tk.LEFT, padx=5)
 
     # Botão para adicionar produto
-    button_adicionar = tk.Button(frame_botoes, text="Adicionar Produto", command=lambda: adicionar_produto(entry_produto.get(), entry_quantidade.get(), entry_valor.get()), bg='lightgreen', fg='black')
+    button_adicionar = tk.Button(frame_botoes, text="Adicionar Produto", command=tela_cadastro_produto, bg='lightgreen', fg='black')
     button_adicionar.pack(side=tk.LEFT, padx=5)
 
     # Botão para aumentar estoque
     button_aumentar_estoque = tk.Button(frame_botoes, text="Aumentar Estoque", command=aumentar_estoque, bg='lightgreen', fg='black')
     button_aumentar_estoque.pack(side=tk.LEFT, padx=5)
 
+    # Botão para realizar venda
+    button_vender = tk.Button(frame_botoes, text="Realizar Venda", command=realizar_venda, bg='lightgreen', fg='black')
+    button_vender.pack(side=tk.LEFT, padx=5)
+
     # Frame para a lista de produtos
     frame_lista = tk.Frame(content_frame, bg="dimgray")
     frame_lista.pack(pady=10)
 
     # Treeview para mostrar os produtos
-    tree = ttk.Treeview(frame_lista, columns=("ID", "Produto", "Quantidade", "Valor de Compra"), show='headings', height=15)
+    global tree
+    tree = ttk.Treeview(frame_lista, columns=("ID", "Produto", "Fornecedor", "Quantidade", "Valor de Compra"), show='headings', height=15)
     tree.pack(side=tk.LEFT, fill=tk.BOTH)
 
     # Definindo as colunas
     tree.heading("ID", text="ID")
     tree.heading("Produto", text="Produto")
+    tree.heading("Fornecedor", text="Fornecedor")
     tree.heading("Quantidade", text="Quantidade")
-    tree.heading("Valor de Compra", text="Valor de Compra")
+    tree.heading("Valor de Compra", text="Valor de Compra (Unidade)")
     tree.column("ID", width=50)
     tree.column("Produto", width=250)
+    tree.column("Fornecedor", width=150)
     tree.column("Quantidade", width=100)
-    tree.column("Valor de Compra", width=150)
+    tree.column("Valor de Compra", width=200)
 
     # Scrollbar para a lista de produtos
     scrollbar_lista = ttk.Scrollbar(frame_lista, orient="vertical", command=tree.yview)
     scrollbar_lista.pack(side=tk.RIGHT, fill=tk.Y)
 
     tree.configure(yscroll=scrollbar_lista.set)
-
-    # Função para carregar produtos do arquivo CSV
-    def carregar_produtos_do_csv():
-        arquivo_csv = 'estoque.csv'
-        # Limpa os produtos existentes na treeview
-        for item in tree.get_children():
-            tree.delete(item)
-
-        if os.path.isfile(arquivo_csv):
-            with open(arquivo_csv, mode='r', newline='') as file:
-                reader = csv.reader(file)
-                next(reader)  # Pular o cabeçalho
-                for row in reader:
-                    if len(row) == 4:  # Verifica se a linha tem 4 colunas
-                        valor_float = float(row[3])  # Converte a string para float
-                        valor_formatado = f"R$ {valor_float:.2f}"  # Formata o valor como R$
-                        tree.insert("", tk.END, values=(row[0], row[1], row[2], valor_formatado))
-
-    # Função para adicionar produto e salvar no CSV
-    def adicionar_produto(produto, quantidade, valor):
-        valor = valor.replace(',', '.')
-        
-        if produto and quantidade.isdigit() and valor.replace('.', '', 1).isdigit():
-            valor_float = float(valor)  # Mantém como float
-            valor_formatado = f"R$ {valor_float:.2f}"  # Formata para exibição
-
-            novo_id = gerar_novo_id()
-            tree.insert("", tk.END, values=(novo_id, produto, quantidade, valor_formatado))
-            salvar_no_csv(novo_id, produto, quantidade, valor_float)  # Salva sem o "R$"
-            entry_produto.delete(0, tk.END)
-            entry_quantidade.delete(0, tk.END)
-            entry_valor.delete(0, tk.END)
-        else:
-            messagebox.showerror("Erro", "Por favor, insira dados válidos.")
-
-    # Função para gerar novo ID
-    def gerar_novo_id():
-        arquivo_csv = 'estoque.csv'
-        if os.path.isfile(arquivo_csv):
-            with open(arquivo_csv, mode='r') as file:
-                reader = csv.reader(file)
-                next(reader)  # Ignora o cabeçalho
-                ids = [int(row[0]) for row in reader if row]  # Converte os IDs das linhas restantes
-                if ids:
-                    return max(ids) + 1
-        return 1
-
-    # Função para salvar produto no CSV
-    def salvar_no_csv(id, produto, quantidade, valor):
-        arquivo_csv = 'estoque.csv'
-        file_exists = os.path.isfile(arquivo_csv)
-        with open(arquivo_csv, mode='a', newline='') as file:
-            writer = csv.writer(file)
-            if not file_exists:
-                writer.writerow(['ID', 'Produto', 'Quantidade', 'Valor de Compra'])
-            writer.writerow([id, produto, quantidade, valor])  # Valor salvo sem "R$"
-
-    # Função para salvar as alterações no CSV
-    def salvar_csv_atualizado():
-        arquivo_csv = 'estoque.csv'
-        with open(arquivo_csv, mode='w', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow(['ID', 'Produto', 'Quantidade', 'Valor de Compra'])
-            for item in tree.get_children():
-                values = tree.item(item)['values']
-                writer.writerow([values[0], values[1], values[2], float(values[3].replace('R$', '').replace(' ', '').replace(',', '.'))])
-
-    # Função para salvar a venda em um arquivo separado
-    def salvar_venda(produto_id, produto_nome, quantidade_venda, valor_venda, cliente_cpf):
-        with open('vendas.csv', mode='a', newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([produto_id, produto_nome, quantidade_venda, valor_venda, cliente_cpf])
-
-    # Função para realizar a venda
-    def realizar_venda():
-        selected_item = tree.selection()
-        if not selected_item:
-            messagebox.showerror("Erro", "Selecione um produto para vender.")
-            return
-
-        # Obtendo o produto atual
-        produto_selecionado = tree.item(selected_item)
-        produto_id = produto_selecionado['values'][0]
-        produto_nome = produto_selecionado['values'][1]
-        quantidade_disponivel = int(produto_selecionado['values'][2])
-
-        # Cria uma nova janela para coletar as informações da venda
-        janela_venda = tk.Toplevel(app)
-        janela_venda.title("Venda")
-
-        # Labels e entradas
-        tk.Label(janela_venda, text=f"Produto: {produto_nome}").pack(pady=5)
-
-        tk.Label(janela_venda, text="Quantidade:").pack(pady=5)
-        entry_quantidade = tk.Entry(janela_venda)
-        entry_quantidade.pack(pady=5)
-
-        tk.Label(janela_venda, text="Valor de Venda:").pack(pady=5)
-        entry_valor = tk.Entry(janela_venda)
-        entry_valor.pack(pady=5)
-
-        tk.Label(janela_venda, text="Cliente:").pack(pady=5)
-        entry_cliente = tk.Entry(janela_venda)
-        entry_cliente.pack(pady=5)
-
-        def confirmar_venda():
-            # Obtém os dados inseridos
-            try:
-                quantidade_venda = int(entry_quantidade.get())
-                valor_venda = float(entry_valor.get())
-                cliente_selecionado = entry_cliente.get().strip()
-
-                if quantidade_venda <= 0 or quantidade_venda > quantidade_disponivel:
-                    messagebox.showerror("Erro", "Quantidade inválida.")
-                    return
-
-                if valor_venda <= 0:
-                    messagebox.showerror("Erro", "Valor de venda inválido.")
-                    return
-
-                if not cliente_selecionado:
-                    messagebox.showwarning("Aviso", "Nenhum cliente informado. A venda será cancelada.")
-                    return
-
-                # Atualiza a quantidade no estoque
-                nova_quantidade = quantidade_disponivel - quantidade_venda
-
-                if nova_quantidade > 0:
-                    # Se a quantidade for maior que zero, apenas atualiza
-                    tree.item(selected_item, values=(produto_id, produto_nome, nova_quantidade, produto_selecionado['values'][3]))
-                else:
-                    # Se a quantidade for zero, remove o item da treeview e do CSV
-                    tree.delete(selected_item)
-                    remover_do_csv(produto_id)  # Chama a função para remover do CSV
-
-                # Salva a nova quantidade no CSV
-                salvar_csv_atualizado()
-
-                # Salvar a venda
-                salvar_venda(produto_id, produto_nome, quantidade_venda, valor_venda, cliente_selecionado)
-
-                messagebox.showinfo("Sucesso", f"Venda de {quantidade_venda} unidades de '{produto_nome}' realizada com sucesso para o cliente {cliente_selecionado}.")
-                janela_venda.destroy()  # Fecha a janela de venda
-
-            except ValueError:
-                messagebox.showerror("Erro", "Por favor, insira valores válidos.")
-                
-        def remover_do_csv(produto_id):
-            arquivo_csv = 'estoque.csv'
-            produtos = []
-
-            # Lê todos os produtos do CSV, exceto o que será removido
-            if os.path.isfile(arquivo_csv):
-                with open(arquivo_csv, mode='r') as file:
-                    reader = csv.reader(file)
-                    next(reader)  # Ignora o cabeçalho
-                    for row in reader:
-                        if row[0] != str(produto_id):  # Verifica se o ID é diferente
-                            produtos.append(row)
-
-            # Salva os produtos restantes de volta ao CSV
-            with open(arquivo_csv, mode='w', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(['ID', 'Produto', 'Quantidade', 'Valor de Compra'])  # Cabeçalho
-                writer.writerows(produtos)  # Escreve os produtos restantes
-
-
-        # Botão para confirmar a venda
-        button_confirmar = tk.Button(janela_venda, text="Confirmar Venda", command=confirmar_venda, bg='lightgreen', fg='black')
-        button_confirmar.pack(pady=10)
-
-        # Botão para cancelar
-        button_cancelar = tk.Button(janela_venda, text="Cancelar", command=janela_venda.destroy, bg='lightcoral', fg='black')
-        button_cancelar.pack(pady=5)
-
-    # Botão para realizar venda
-    button_vender = tk.Button(frame_botoes, text="Realizar Venda", command=realizar_venda, bg='lightgreen', fg='black')
-    button_vender.pack(side=tk.LEFT, padx=5)
 
     # Carrega produtos ao iniciar
     carregar_produtos_do_csv()
@@ -810,6 +572,251 @@ def tela_controle_estoque():
     width = max(canvas.winfo_width(), content_frame.winfo_width())
     canvas.config(scrollregion=canvas.bbox("all"))
     canvas.create_window((width // 2, 0), window=content_frame, anchor="n")
+
+def tela_cadastro_produto():
+    janela_cadastro = tk.Toplevel(app)
+    janela_cadastro.title("Cadastrar Produto")
+
+    # Frame para os campos de entrada
+    frame_entrada = tk.Frame(janela_cadastro)
+    frame_entrada.pack(pady=10)
+
+    # Entradas de dados
+    tk.Label(frame_entrada, text="Produto:").grid(row=0, column=0, padx=5, pady=5)
+    entry_produto = tk.Entry(frame_entrada)
+    entry_produto.grid(row=0, column=1, padx=5, pady=5)
+
+    tk.Label(frame_entrada, text="Fornecedor:").grid(row=1, column=0, padx=5, pady=5)
+    entry_fornecedor = tk.Entry(frame_entrada)
+    entry_fornecedor.grid(row=1, column=1, padx=5, pady=5)
+
+    tk.Label(frame_entrada, text="Quantidade:").grid(row=2, column=0, padx=5, pady=5)
+    entry_quantidade = tk.Entry(frame_entrada)
+    entry_quantidade.grid(row=2, column=1, padx=5, pady=5)
+
+    tk.Label(frame_entrada, text="Valor de Compra: (Unidade)").grid(row=3, column=0, padx=5, pady=5)
+    entry_valor = tk.Entry(frame_entrada)
+    entry_valor.grid(row=3, column=1, padx=5, pady=5)
+
+    def confirmar_cadastro():
+        adicionar_produto(entry_produto.get(), entry_fornecedor.get(), entry_quantidade.get(), entry_valor.get())
+        janela_cadastro.destroy()  # Fecha a janela após adicionar
+
+    # Botão para confirmar o cadastro
+    button_confirmar = tk.Button(janela_cadastro, text="Confirmar", command=confirmar_cadastro, bg='lightgreen', fg='black')
+    button_confirmar.pack(pady=10)
+
+    # Botão para cancelar
+    button_cancelar = tk.Button(janela_cadastro, text="Cancelar", command=janela_cadastro.destroy, bg='lightcoral', fg='black')
+    button_cancelar.pack(pady=5)
+
+# Função para carregar produtos do arquivo CSV
+def carregar_produtos_do_csv():
+    arquivo_csv = 'estoque.csv'
+    # Limpa os produtos existentes na treeview
+    for item in tree.get_children():
+        tree.delete(item)
+
+    if os.path.isfile(arquivo_csv):
+        with open(arquivo_csv, mode='r', newline='') as file:
+            reader = csv.reader(file)
+            next(reader)  # Pular o cabeçalho
+            for row in reader:
+                if len(row) == 5:  # Verifica se a linha tem 5 colunas
+                    valor_float = float(row[4])  # Converte a string para float
+                    valor_formatado = f"R$ {valor_float:.2f}"  # Formata o valor como R$
+                    tree.insert("", tk.END, values=(row[0], row[1], row[2], row[3], valor_formatado))
+
+# Função para adicionar produto e salvar no CSV
+def adicionar_produto(produto, fornecedor, quantidade, valor):
+    valor = valor.replace(',', '.')
+    
+    if produto and fornecedor and quantidade.isdigit() and valor.replace('.', '', 1).isdigit():
+        valor_float = float(valor)  # Mantém como float
+        valor_formatado = f"R$ {valor_float:.2f}"  # Formata para exibição
+
+        novo_id = gerar_novo_id()
+        tree.insert("", tk.END, values=(novo_id, produto, fornecedor, quantidade, valor_formatado))
+        salvar_no_csv(novo_id, produto, fornecedor, quantidade, valor_float)  # Salva sem o "R$"
+    else:
+        messagebox.showerror("Erro", "Por favor, insira dados válidos.")
+
+# Função para gerar novo ID
+def gerar_novo_id():
+    arquivo_csv = 'estoque.csv'
+    if os.path.isfile(arquivo_csv):
+        with open(arquivo_csv, mode='r') as file:
+            reader = csv.reader(file)
+            next(reader)  # Ignora o cabeçalho
+            ids = [int(row[0]) for row in reader if row]  # Converte os IDs das linhas restantes
+            if ids:
+                return max(ids) + 1
+    return 1
+
+# Função para salvar produto no CSV
+def salvar_no_csv(id, produto, fornecedor, quantidade, valor):
+    arquivo_csv = 'estoque.csv'
+    file_exists = os.path.isfile(arquivo_csv)
+    with open(arquivo_csv, mode='a', newline='') as file:
+        writer = csv.writer(file)
+        if not file_exists:
+            writer.writerow(['ID', 'Produto', 'Fornecedor', 'Quantidade', 'Valor de Compra'])
+        writer.writerow([id, produto, fornecedor, quantidade, valor])  # Valor salvo sem "R$"
+
+def aumentar_estoque():
+    selected_item = tree.selection()
+    if not selected_item:
+        messagebox.showerror("Erro", "Selecione um produto para aumentar o estoque.")
+        return
+
+    produto_selecionado = tree.item(selected_item)
+    produto_id = produto_selecionado['values'][0]
+    produto_nome = produto_selecionado['values'][1]
+    quantidade_atual = int(produto_selecionado['values'][3])
+
+    # Cria uma nova janela para coletar a quantidade a ser adicionada
+    janela_aumento = tk.Toplevel(app)
+    janela_aumento.title("Aumentar Estoque")
+
+    tk.Label(janela_aumento, text=f"Produto: {produto_nome}").pack(pady=5)
+
+    tk.Label(janela_aumento, text="Quantidade a adicionar:").pack(pady=5)
+    entry_quantidade_aumento = tk.Entry(janela_aumento)
+    entry_quantidade_aumento.pack(pady=5)
+
+    def confirmar_aumento():
+        try:
+            quantidade_a_adicionar = int(entry_quantidade_aumento.get())
+            if quantidade_a_adicionar <= 0:
+                messagebox.showerror("Erro", "Quantidade deve ser maior que zero.")
+                return
+
+            nova_quantidade = quantidade_atual + quantidade_a_adicionar
+            tree.item(selected_item, values=(produto_id, produto_nome, produto_selecionado['values'][2], nova_quantidade, produto_selecionado['values'][4]))
+
+            # Salvar a nova quantidade no CSV
+            salvar_csv_atualizado()
+
+            messagebox.showinfo("Sucesso", f"Estoque de '{produto_nome}' aumentado em {quantidade_a_adicionar} unidades.")
+            janela_aumento.destroy()  # Fecha a janela de aumento
+
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira uma quantidade válida.")
+
+    # Botão para confirmar o aumento
+    button_confirmar = tk.Button(janela_aumento, text="Confirmar Aumento", command=confirmar_aumento, bg='lightgreen', fg='black')
+    button_confirmar.pack(pady=10)
+
+    # Botão para cancelar
+    button_cancelar = tk.Button(janela_aumento, text="Cancelar", command=janela_aumento.destroy, bg='lightcoral', fg='black')
+    button_cancelar.pack(pady=5)
+
+def salvar_venda(produto_id, produto_nome, quantidade_venda, valor_venda, valor_compra, cliente_cpf):
+    with open('vendas.csv', mode='a', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow([produto_id, produto_nome, quantidade_venda, valor_venda, valor_compra, cliente_cpf])
+
+
+def realizar_venda():
+    selected_item = tree.selection()
+    if not selected_item:
+        messagebox.showerror("Erro", "Selecione um produto para vender.")
+        return
+
+    produto_selecionado = tree.item(selected_item)
+    produto_id = produto_selecionado['values'][0]
+    produto_nome = produto_selecionado['values'][1]
+    quantidade_disponivel = int(produto_selecionado['values'][3])
+    valor_compra = float(produto_selecionado['values'][4].replace('R$', '').replace(' ', '').replace(',', '.'))
+
+    # Cria uma nova janela para coletar as informações da venda
+    janela_venda = tk.Toplevel(app)
+    janela_venda.title("Venda")
+
+    # Labels e entradas
+    tk.Label(janela_venda, text=f"Produto: {produto_nome}").pack(pady=5)
+
+    tk.Label(janela_venda, text="Quantidade:").pack(pady=5)
+    entry_quantidade = tk.Entry(janela_venda)
+    entry_quantidade.pack(pady=5)
+
+    tk.Label(janela_venda, text="Valor de Venda:").pack(pady=5)
+    entry_valor = tk.Entry(janela_venda)
+    entry_valor.pack(pady=5)
+
+    tk.Label(janela_venda, text="Cliente:").pack(pady=5)
+    entry_cliente = tk.Entry(janela_venda)
+    entry_cliente.pack(pady=5)
+
+    def confirmar_venda():
+        try:
+            quantidade_venda = int(entry_quantidade.get())
+            valor_venda = float(entry_valor.get())
+            cliente_cpf = entry_cliente.get().strip()
+
+            if quantidade_venda <= 0 or quantidade_venda > quantidade_disponivel:
+                messagebox.showerror("Erro", "Quantidade inválida.")
+                return
+
+            if valor_venda <= 0:
+                messagebox.showerror("Erro", "Valor de venda inválido.")
+                return
+
+            if not cliente_cpf:
+                messagebox.showwarning("Aviso", "Nenhum cliente informado. A venda será cancelada.")
+                return
+
+            nova_quantidade = quantidade_disponivel - quantidade_venda
+
+            if nova_quantidade > 0:
+                tree.item(selected_item, values=(produto_id, produto_nome, produto_selecionado['values'][2], nova_quantidade, produto_selecionado['values'][4]))
+            else:
+                tree.delete(selected_item)
+                remover_do_csv(produto_id)
+
+            # Salvar a venda no CSV
+            salvar_venda(produto_id, produto_nome, quantidade_venda, valor_venda, valor_compra, cliente_cpf)
+
+            # Salvar estoque atualizado no CSV
+            salvar_csv_atualizado()
+
+            messagebox.showinfo("Sucesso", f"Venda de {quantidade_venda} unidades de '{produto_nome}' realizada com sucesso para o cliente {cliente_cpf}.")
+            janela_venda.destroy()
+
+        except ValueError:
+            messagebox.showerror("Erro", "Por favor, insira valores válidos.")
+
+    button_confirmar = tk.Button(janela_venda, text="Confirmar Venda", command=confirmar_venda, bg='lightgreen', fg='black')
+    button_confirmar.pack(pady=10)
+
+    button_cancelar = tk.Button(janela_venda, text="Cancelar", command=janela_venda.destroy, bg='lightcoral', fg='black')
+    button_cancelar.pack(pady=5)
+
+def salvar_csv_atualizado():
+    arquivo_csv = 'estoque.csv'
+    with open(arquivo_csv, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['ID', 'Produto', 'Fornecedor', 'Quantidade', 'Valor de Compra'])
+        for item in tree.get_children():
+            values = tree.item(item)['values']
+            writer.writerow([values[0], values[1], values[2], values[3], float(values[4].replace('R$', '').replace(' ', '').replace(',', '.'))])
+
+def remover_do_csv(produto_id):
+    arquivo_csv = 'estoque.csv'
+    produtos = []
+
+    if os.path.isfile(arquivo_csv):
+        with open(arquivo_csv, mode='r') as file:
+            reader = csv.reader(file)
+            next(reader)
+            for row in reader:
+                if row[0] != str(produto_id):
+                    produtos.append(row)
+
+    with open(arquivo_csv, mode='w', newline='') as file:
+        writer = csv.writer(file)
+        writer.writerow(['ID', 'Produto', 'Fornecedor', 'Quantidade', 'Valor de Compra'])
+        writer.writerows(produtos)
     
 def tela_controle_vendas():
     limpar_tela()
@@ -860,13 +867,17 @@ def tela_controle_vendas():
     entry_quantidade = tk.Entry(frame_filtro)
     entry_quantidade.grid(row=2, column=1, padx=5, pady=5)
 
-    tk.Label(frame_filtro, text="Valor de Venda:", bg="dimgray").grid(row=3, column=0, padx=5, pady=5)
-    entry_valor = tk.Entry(frame_filtro)
-    entry_valor.grid(row=3, column=1, padx=5, pady=5)
+    tk.Label(frame_filtro, text="Valor de Venda: (Total)", bg="dimgray").grid(row=3, column=0, padx=5, pady=5)
+    entry_valor_venda = tk.Entry(frame_filtro)
+    entry_valor_venda.grid(row=3, column=1, padx=5, pady=5)
 
-    tk.Label(frame_filtro, text="Cliente:", bg="dimgray").grid(row=4, column=0, padx=5, pady=5)
+    tk.Label(frame_filtro, text="Valor de Compra: (Unidade)", bg="dimgray").grid(row=4, column=0, padx=5, pady=5)
+    entry_valor_compra = tk.Entry(frame_filtro)
+    entry_valor_compra.grid(row=4, column=1, padx=5, pady=5)
+
+    tk.Label(frame_filtro, text="Cliente:", bg="dimgray").grid(row=5, column=0, padx=5, pady=5)
     entry_cliente = tk.Entry(frame_filtro)
-    entry_cliente.grid(row=4, column=1, padx=5, pady=5)
+    entry_cliente.grid(row=5, column=1, padx=5, pady=5)
 
     # Função para aplicar o filtro
     def aplicar_filtro():
@@ -878,7 +889,8 @@ def tela_controle_vendas():
         filtro_id = entry_id.get().strip()
         filtro_produto = entry_produto.get().strip().lower()
         filtro_quantidade = entry_quantidade.get().strip()
-        filtro_valor = entry_valor.get().strip()
+        filtro_valor_venda = entry_valor_venda.get().strip()
+        filtro_valor_compra = entry_valor_compra.get().strip()
         filtro_cliente = entry_cliente.get().strip().lower()
 
         arquivo_csv = 'vendas.csv'
@@ -887,40 +899,53 @@ def tela_controle_vendas():
                 reader = csv.reader(file)
                 next(reader)  # Pular o cabeçalho
                 for row in reader:
-                    if len(row) == 5:  # Verifica se a linha tem 5 colunas
-                        valor_float = float(row[3])  # Converte a string para float
-                        valor_formatado = f"R$ {valor_float:.2f}"  # Formata o valor como R$
+                    if len(row) == 6:  # Verifica se a linha tem 6 colunas
+                        valor_venda_float = float(row[3])  # Converte a string para float
+                        valor_compra_float = float(row[4])  # Converte a string para float
+                        valor_venda_formatado = f"R$ {valor_venda_float:.2f}"  # Formata o valor de venda
+                        valor_compra_formatado = f"R$ {valor_compra_float:.2f}"  # Formata o valor de compra
                         
                         # Verifica se os filtros correspondem
                         if (filtro_id in row[0] and
                                 filtro_produto in row[1].lower() and
                                 filtro_quantidade in row[2] and
-                                (filtro_valor == "" or filtro_valor in str(valor_float)) and
-                                filtro_cliente in row[4].lower()):
-                            tree_vendas.insert("", tk.END, values=(row[0], row[1], row[2], valor_formatado, row[4]))
+                                (filtro_valor_venda == "" or filtro_valor_venda in str(valor_venda_float)) and
+                                (filtro_valor_compra == "" or filtro_valor_compra in str(valor_compra_float)) and
+                                filtro_cliente in row[5].lower()):
+                            tree_vendas.insert("", tk.END, values=(row[0], row[1], row[2], valor_venda_formatado, valor_compra_formatado, row[5]))
+
+        # Frame para os botões
+    frame_botoes = tk.Frame(frame_filtro, bg="dimgray")
+    frame_botoes.grid(row=6, columnspan=2, pady=5)
+
+    # Botão de retornar
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=criar_tela_principal, bg='lightcoral', fg='black')
+    button_retornar.pack(side=tk.LEFT, padx=5)
 
     # Botão para aplicar o filtro
-    button_filtrar = tk.Button(frame_filtro, text="Filtrar", command=aplicar_filtro, bg='lightgreen', fg='black')
-    button_filtrar.grid(row=5, columnspan=2, pady=5)
+    button_filtrar = tk.Button(frame_botoes, text="Filtrar", command=aplicar_filtro, bg='lightgreen', fg='black')
+    button_filtrar.pack(side=tk.LEFT, padx=5)
 
     # Frame para a lista de vendas
     frame_lista = tk.Frame(content_frame, bg="dimgray")
     frame_lista.pack(pady=10)
 
     # Treeview para mostrar as vendas
-    tree_vendas = ttk.Treeview(frame_lista, columns=("ID", "Produto", "Quantidade", "Valor de Venda", "Cliente"), show='headings', height=15)
+    tree_vendas = ttk.Treeview(frame_lista, columns=("ID", "Produto", "Quantidade", "Valor de Venda", "Valor de Compra", "Cliente"), show='headings', height=15)
     tree_vendas.pack(side=tk.LEFT, fill=tk.BOTH)
 
     # Definindo as colunas
     tree_vendas.heading("ID", text="ID")
     tree_vendas.heading("Produto", text="Produto")
     tree_vendas.heading("Quantidade", text="Quantidade")
-    tree_vendas.heading("Valor de Venda", text="Valor de Venda")
+    tree_vendas.heading("Valor de Venda", text="Valor de Venda (Total)")
+    tree_vendas.heading("Valor de Compra", text="Valor de Compra (Unidade)")
     tree_vendas.heading("Cliente", text="Cliente")
     tree_vendas.column("ID", width=50)
     tree_vendas.column("Produto", width=250)
     tree_vendas.column("Quantidade", width=100)
-    tree_vendas.column("Valor de Venda", width=150)
+    tree_vendas.column("Valor de Venda", width=160)
+    tree_vendas.column("Valor de Compra", width=190)
     tree_vendas.column("Cliente", width=150)
 
     # Scrollbar para a lista de vendas
@@ -928,10 +953,6 @@ def tela_controle_vendas():
     scrollbar_vendas.pack(side=tk.RIGHT, fill=tk.Y)
 
     tree_vendas.configure(yscroll=scrollbar_vendas.set)
-
-    # Botão de retornar
-    button_retornar = tk.Button(content_frame, text="Retornar", command=criar_tela_principal, bg='lightcoral', fg='black')
-    button_retornar.pack(pady=10)
 
     # Função para carregar vendas do arquivo CSV
     def carregar_vendas_do_csv():
@@ -944,10 +965,12 @@ def tela_controle_vendas():
             with open(arquivo_csv, mode='r', newline='') as file:
                 reader = csv.reader(file)
                 for row in reader:
-                    if len(row) == 5:  # Verifica se a linha tem 5 colunas
-                        valor_float = float(row[3])  # Converte a string para float
-                        valor_formatado = f"R$ {valor_float:.2f}"  # Formata o valor como R$
-                        tree_vendas.insert("", tk.END, values=(row[0], row[1], row[2], valor_formatado, row[4]))
+                    if len(row) == 6:  # Verifica se a linha tem 6 colunas
+                        valor_venda_float = float(row[3])  # Converte a string para float
+                        valor_compra_float = float(row[4])  # Converte a string para float
+                        valor_venda_formatado = f"R$ {valor_venda_float:.2f}"  # Formata o valor de venda
+                        valor_compra_formatado = f"R$ {valor_compra_float:.2f}"  # Formata o valor de compra
+                        tree_vendas.insert("", tk.END, values=(row[0], row[1], row[2], valor_venda_formatado, valor_compra_formatado, row[5]))
 
     # Carrega as vendas do CSV ao abrir a tela
     carregar_vendas_do_csv()
@@ -957,6 +980,7 @@ def tela_controle_vendas():
     width = max(canvas.winfo_width(), content_frame.winfo_width())
     canvas.config(scrollregion=canvas.bbox("all"))
     canvas.create_window((width // 2, 0), window=content_frame, anchor="n")
+
 
 #Serviço
 def tela_cadastro_servicos():
