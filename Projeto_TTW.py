@@ -6,7 +6,7 @@ from reportlab.pdfgen import canvas as pdf_canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.colors import red, black
 from PyPDF2 import PdfReader, PdfWriter
-from PIL import Image, ImageTk, ImageFilter
+from PIL import Image, ImageTk
 import locale
 import subprocess
 import platform
@@ -18,58 +18,30 @@ import threading
 import time
 import pywhatkit as kit
 import customtkinter as ctk
-
-
-
+from funcoes import aplicar_desfoque, contar_linhas
+from validacoes import validar_cnpj, validar_cpf
 
 # Dicionário para armazenar clientes e serviços
 clientes = {}
 servicos = []
 locale.setlocale(locale.LC_TIME, 'pt_BR.UTF-8')
 
-def validar_cpf(cpf):
-    cpf = ''.join(filter(str.isdigit, cpf))
-    if len(cpf) != 11 or cpf == "00000000000":
-        return False
+def sair():
+    app.quit()
 
-    soma = sum(int(cpf[i]) * (10 - i) for i in range(9))
-    digito1 = (soma * 10) % 11
-    if digito1 == 10 or digito1 == 11:
-        digito1 = 0
-    if int(cpf[9]) != digito1:
-        return False
+def limpar_tela():
+    for widget in app.winfo_children():
+        widget.destroy()
 
-    soma = sum(int(cpf[i]) * (11 - i) for i in range(10))
-    digito2 = (soma * 10) % 11
-    if digito2 == 10 or digito2 == 11:
-        digito2 = 0
-    if int(cpf[10]) != digito2:
-        return False
+def toggle_fullscreen(event=None):
+    global fullscreen
+    fullscreen = not fullscreen
+    app.attributes("-fullscreen", fullscreen)
 
-    return True
-
-def validar_cnpj(cnpj):
-    cnpj = ''.join(filter(str.isdigit, cnpj))  # Remove caracteres não numéricos
-    if len(cnpj) != 14 or cnpj == "00000000000000":
-        return False
-
-    # Cálculo do primeiro dígito verificador
-    pesos1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
-    soma1 = sum(int(cnpj[i]) * pesos1[i] for i in range(12))
-    digito1 = 0 if soma1 % 11 < 2 else 11 - (soma1 % 11)
-
-    if int(cnpj[12]) != digito1:
-        return False
-
-    # Cálculo do segundo dígito verificador
-    pesos2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2]
-    soma2 = sum(int(cnpj[i]) * pesos2[i] for i in range(13))
-    digito2 = 0 if soma2 % 11 < 2 else 11 - (soma2 % 11)
-
-    if int(cnpj[13]) != digito2:
-        return False
-
-    return True
+def end_fullscreen(event=None):
+    global fullscreen
+    fullscreen = False
+    app.attributes("-fullscreen", False)
 
 def carregar_clientes():
     global clientes
@@ -93,33 +65,34 @@ def salvar_clientes():
             else:
                 print(f"Entrada inválida para CPF {cpf}: {dados}")  # Alerta sobre entradas inválidas
 
-
+# Função para carregar serviços
 def carregar_servicos():
-    global servicos
     if os.path.exists('servicos.csv'):
-        with open('servicos.csv', mode='r', newline='') as arquivo:
-            leitor = csv.reader(arquivo)
-            servicos = [linha for linha in leitor]
+        try:
+            with open('servicos.csv', mode='r', newline='', encoding='latin1') as arquivo:
+                leitor = csv.reader(arquivo)
+                for linha in leitor:
+                    if len(linha) == 9:  # Espera 9 campos agora, incluindo o campo de garantia
+                        codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia = linha
+                        servicos.append([codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia])
+                    else:
+                        print(f"Linha ignorada (formato incorreto): {linha}")
+        except UnicodeDecodeError:
+            with open('servicos.csv', mode='r', newline='', encoding='utf-8') as arquivo:
+                leitor = csv.reader(arquivo)
+                for linha in leitor:
+                    if len(linha) == 9:  # Espera 9 campos agora, incluindo o campo de garantia
+                        codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia = linha
+                        servicos.append([codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia])
+                    else:
+                        print(f"Linha ignorada (formato incorreto): {linha}")
 
 def salvar_servicos():
     with open('servicos.csv', mode='w', newline='') as arquivo:
         escritor = csv.writer(arquivo)
         escritor.writerows(servicos)
-
-def limpar_tela():
-    for widget in app.winfo_children():
-        widget.destroy()
     
 backup_running = True
-
-def contar_linhas(caminho):
-    """Contar o número de linhas em um arquivo."""
-    try:
-        with open(caminho, 'r') as f:
-            return sum(1 for _ in f)
-    except Exception as e:
-        print(f"Erro ao contar linhas do arquivo {caminho}: {e}")
-        return 0  # Retorna 0 em caso de erro
 
 def realizar_backup(caminhos_db, caminho_backup):
     print("Backup thread iniciada.")
@@ -189,100 +162,6 @@ if all(os.path.isfile(caminho) for caminho in caminhos_db):
 else:
     print("Um ou mais arquivos de banco de dados não foram encontrados.")
 
-def criar_botao_gradiente(parent, text, command):
-    canvas = tk.Canvas(parent, width=200, height=60, highlightthickness=0)
-
-    # Função para criar o gradiente
-    def desenhar_gradiente(intensidade):
-        for i in range(200):
-            # Reduzindo a intensidade do verde para um tom mais fosco
-            green_intensity = min(int(150 + (20 * (i / 200) * intensidade)), 255)
-            color = f'#{0:02x}{green_intensity:02x}00'
-            canvas.create_line(i, 0, i, 60, fill=color)
-
-    # Desenha o gradiente inicial
-    desenhar_gradiente(1)
-
-    # Adiciona texto ao botão
-    texto_id = canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
-
-    # Função para animação de pressionar e chamar o comando
-    def on_click(event):
-        canvas.scale("all", 100, 30, 0.95, 0.95)
-        canvas.after(100, lambda: canvas.scale("all", 100, 30, 1.05, 1.05))
-        canvas.after(200, lambda: (canvas.scale("all", 100, 30, 1, 1), command()))
-
-    # Funções para animação ao passar o mouse
-    def on_enter(event):
-        canvas.delete("text")
-        desenhar_gradiente(1.2)
-        canvas.create_rectangle(0, 0, 200, 60, fill='white', outline='')
-        canvas.create_text(100, 30, text=text, fill='black', font=('Futura', 12, 'bold'), tags="text")
-
-    def on_leave(event):
-        canvas.delete("text")
-        desenhar_gradiente(1)
-        canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
-
-    # Liga os eventos de mouse ao canvas
-    canvas.bind("<Button-1>", on_click)
-    canvas.bind("<Enter>", on_enter)
-    canvas.bind("<Leave>", on_leave)
-
-    return canvas
-
-def criar_botao_gradiente_vermelho(parent, text, command):
-    canvas = tk.Canvas(parent, width=200, height=60, highlightthickness=0)
-
-    # Função para criar o gradiente vermelho escuro
-    def desenhar_gradiente(intensidade):
-        for i in range(200):
-            # Mantém o valor vermelho no máximo e reduz a intensidade do verde e azul
-            red_intensity = min(int(150 + (50 * (i / 200) * intensidade)), 255)
-            color = f'#{red_intensity:02x}00{0:02x}'  # Tonalidade de vermelho escuro
-            canvas.create_line(i, 0, i, 60, fill=color)
-
-    # Desenha o gradiente inicial
-    desenhar_gradiente(1)
-
-    # Adiciona texto ao botão
-    texto_id = canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
-
-    # Função para animação de pressionar e chamar o comando
-    def on_click(event):
-        canvas.scale("all", 100, 30, 0.95, 0.95)
-        canvas.after(100, lambda: canvas.scale("all", 100, 30, 1.05, 1.05))
-        canvas.after(200, lambda: (canvas.scale("all", 100, 30, 1, 1), command()))
-
-    # Funções para animação ao passar o mouse
-    def on_enter(event):
-        canvas.delete("text")
-        desenhar_gradiente(1.2)
-        canvas.create_rectangle(0, 0, 200, 60, fill='white', outline='')
-        canvas.create_text(100, 30, text=text, fill='black', font=('Futura', 12, 'bold'), tags="text")
-
-    def on_leave(event):
-        canvas.delete("text")
-        desenhar_gradiente(1)
-        canvas.create_text(100, 30, text=text, fill='white', font=('Futura', 12, 'bold'), tags="text")
-
-    # Liga os eventos de mouse ao canvas
-    canvas.bind("<Button-1>", on_click)
-    canvas.bind("<Enter>", on_enter)
-    canvas.bind("<Leave>", on_leave)
-
-    return canvas
-
-def toggle_fullscreen(event=None):
-    global fullscreen
-    fullscreen = not fullscreen
-    app.attributes("-fullscreen", fullscreen)
-
-def end_fullscreen(event=None):
-    global fullscreen
-    fullscreen = False
-    app.attributes("-fullscreen", False)
-
 def tela_login():
     limpar_tela()
     
@@ -292,14 +171,10 @@ def tela_login():
         
         # Aqui você pode adicionar sua lógica de validação
         if username == "admin" and password == "senha123":
-            print("Login bem-sucedido")
             # Chamar a função que exibe a tela principal
             criar_tela_principal()
         else:
             messagebox.showerror("Erro", "Usuário ou senha incorretos.")
-        
-        entry_username.delete(0, ctk.END)
-        entry_password.delete(0, ctk.END)
 
     # Frame principal para o fundo
     frame_fundo = ctk.CTkFrame(app)
@@ -386,14 +261,10 @@ def tela_login():
 
     button_login = ctk.CTkButton(frame_botoes, text="Entrar", command=login, fg_color="#4CAF50", hover_color="#388E3C")
     button_login.pack(side=ctk.LEFT)
-    
-def aplicar_desfoque(imagem):
-    return imagem.filter(ImageFilter.GaussianBlur(10))
 
 def criar_tela_principal():
     limpar_tela()
-    # Limpa a tela (se necessário)
-
+    
     # Frame principal para o fundo
     frame_fundo = ctk.CTkFrame(app)
     frame_fundo.pack(fill=tk.BOTH, expand=True)
@@ -470,22 +341,31 @@ def criar_tela_principal():
         ("Controle de Vendas", tela_controle_vendas),
     ]
 
-     # Adicionando os botões ao frame
+    # Adicionando os botões ao frame
     for texto, comando in botoes_clientes + botoes_servicos + botoes_estoque:
         button = ctk.CTkButton(frame_botoes, text=texto, command=comando, fg_color="#4CAF50", hover_color="#388E3C")
         button.pack(pady=5)
 
-    # Botão sair centralizado
+    # Frame para os botões de sair e deslogar
     frame_sair = ctk.CTkFrame(content_frame, fg_color="black")
-    frame_sair.pack(pady=5)  # Você pode ajustar este valor para controlar a distância
+    frame_sair.pack(pady=5)
 
     # Botão Sair
     button_sair = ctk.CTkButton(frame_sair, text="Sair", command=sair, fg_color="#FF5722", hover_color="#E64A19")
     button_sair.pack(side=ctk.LEFT)
 
+    # Botão Deslogar
+    button_deslogar = ctk.CTkButton(frame_sair, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19")
+    button_deslogar.pack(side=ctk.LEFT, padx=5)
+
     # Centralizando o content_frame no frame_pai
     frame_pai.update_idletasks()
     frame_pai.pack(expand=True)
+
+def deslogar():
+    # Chama a função que limpa a tela atual e leva para a tela de login
+    limpar_tela()  # Limpa a tela atual
+    tela_login()  # Chama a tela de login
 
 #Estoque
 def tela_controle_estoque():
@@ -2717,10 +2597,6 @@ def atualizar_cliente():
     # Retorna à lista de clientes
     tela_listar()
 
-
-def sair():
-    app.quit()
-
 app = tk.Tk()
 app.title("Sistema Eletro Espíndola")
 app.configure(bg="dimgray")
@@ -2758,28 +2634,6 @@ carregar_clientes()
 
 # Lista de serviços
 servicos = []
-
-# Função para carregar serviços
-def carregar_servicos():
-    if os.path.exists('servicos.csv'):
-        try:
-            with open('servicos.csv', mode='r', newline='', encoding='latin1') as arquivo:
-                leitor = csv.reader(arquivo)
-                for linha in leitor:
-                    if len(linha) == 9:  # Espera 9 campos agora, incluindo o campo de garantia
-                        codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia = linha
-                        servicos.append([codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia])
-                    else:
-                        print(f"Linha ignorada (formato incorreto): {linha}")
-        except UnicodeDecodeError:
-            with open('servicos.csv', mode='r', newline='', encoding='utf-8') as arquivo:
-                leitor = csv.reader(arquivo)
-                for linha in leitor:
-                    if len(linha) == 9:  # Espera 9 campos agora, incluindo o campo de garantia
-                        codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia = linha
-                        servicos.append([codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia])
-                    else:
-                        print(f"Linha ignorada (formato incorreto): {linha}")
 
 # Carregar serviços na inicialização
 carregar_servicos()
