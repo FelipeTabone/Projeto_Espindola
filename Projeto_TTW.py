@@ -20,6 +20,8 @@ import pywhatkit as kit
 import customtkinter as ctk
 from funcoes import aplicar_desfoque, contar_linhas
 from validacoes import validar_cnpj, validar_cpf
+from carregar import carregar_usuarios_csv
+import logging
 
 # Dicionário para armazenar clientes e serviços
 clientes = {}
@@ -43,11 +45,25 @@ def end_fullscreen(event=None):
     fullscreen = False
     app.attributes("-fullscreen", False)
 
+def salvar_clientes():
+    with open('Base/clientes.csv', mode='w', newline='') as arquivo:
+        escritor = csv.writer(arquivo)
+        for cpf, dados in clientes.items():
+            if len(dados) == 3:
+                escritor.writerow([cpf, dados[0], dados[1], dados[2]])  # nome, celular, celular2
+            else:
+                print(f"Entrada inválida para CPF {cpf}: {dados}")  # Alerta sobre entradas inválidas
+                
+def salvar_servicos():
+    with open('Base/servicos.csv', mode='w', newline='') as arquivo:
+        escritor = csv.writer(arquivo)
+        escritor.writerows(servicos)
+        
 def carregar_clientes():
     global clientes
     clientes = {}  # Reinicie o dicionário para evitar dados antigos
-    if os.path.exists('clientes.csv'):
-        with open('clientes.csv', mode='r', newline='') as arquivo:
+    if os.path.exists('Base/clientes.csv'):
+        with open('Base/clientes.csv', mode='r', newline='') as arquivo:
             leitor = csv.reader(arquivo)
             for linha in leitor:
                 if len(linha) == 4:  # Atualizado para 4 campos
@@ -56,20 +72,11 @@ def carregar_clientes():
     else:
         print("Arquivo clientes.csv não encontrado.")
 
-def salvar_clientes():
-    with open('clientes.csv', mode='w', newline='') as arquivo:
-        escritor = csv.writer(arquivo)
-        for cpf, dados in clientes.items():
-            if len(dados) == 3:
-                escritor.writerow([cpf, dados[0], dados[1], dados[2]])  # nome, celular, celular2
-            else:
-                print(f"Entrada inválida para CPF {cpf}: {dados}")  # Alerta sobre entradas inválidas
-
 # Função para carregar serviços
 def carregar_servicos():
-    if os.path.exists('servicos.csv'):
+    if os.path.exists('Base/servicos.csv'):
         try:
-            with open('servicos.csv', mode='r', newline='', encoding='latin1') as arquivo:
+            with open('Base/servicos.csv', mode='r', newline='', encoding='latin1') as arquivo:
                 leitor = csv.reader(arquivo)
                 for linha in leitor:
                     if len(linha) == 9:  # Espera 9 campos agora, incluindo o campo de garantia
@@ -78,7 +85,7 @@ def carregar_servicos():
                     else:
                         print(f"Linha ignorada (formato incorreto): {linha}")
         except UnicodeDecodeError:
-            with open('servicos.csv', mode='r', newline='', encoding='utf-8') as arquivo:
+            with open('Base/servicos.csv', mode='r', newline='', encoding='utf-8') as arquivo:
                 leitor = csv.reader(arquivo)
                 for linha in leitor:
                     if len(linha) == 9:  # Espera 9 campos agora, incluindo o campo de garantia
@@ -86,11 +93,6 @@ def carregar_servicos():
                         servicos.append([codigo, observacao, status, data_hora, cpf_cliente, nome_cliente, equipamento, marca, garantia])
                     else:
                         print(f"Linha ignorada (formato incorreto): {linha}")
-
-def salvar_servicos():
-    with open('servicos.csv', mode='w', newline='') as arquivo:
-        escritor = csv.writer(arquivo)
-        escritor.writerows(servicos)
     
 backup_running = True
 
@@ -149,12 +151,12 @@ def manter_interface():
 
 # Exemplo de uso
 caminhos_db = [
-    "clientes.csv", 
-    "servicos.csv", 
-    "vendas.csv",   # Novo arquivo adicionado
-    "estoque.csv"   # Novo arquivo adicionado
+    "Base/clientes.csv", 
+    "Base/servicos.csv", 
+    "Base/vendas.csv", 
+    "Base/estoque.csv" 
 ]  # Substitua pelos caminhos reais
-caminho_backup = "./backup"  # Substitua pelo caminho real
+caminho_backup = "./backup" 
 
 if all(os.path.isfile(caminho) for caminho in caminhos_db):
     print("Iniciando backup...")
@@ -162,17 +164,42 @@ if all(os.path.isfile(caminho) for caminho in caminhos_db):
 else:
     print("Um ou mais arquivos de banco de dados não foram encontrados.")
 
+usuario_logado = None  # Variável global para armazenar o usuário logado
+
+logging.basicConfig(
+    filename='Base/usuario_atividade.log',  # Nome do arquivo de log
+    level=logging.INFO,                # Nível de severidade do log (INFO, DEBUG, WARNING, etc.)
+    format='%(asctime)s - %(message)s', # Formato do log (inclui a data/hora)
+)
+
+def registrar_acao(usuario, acao):
+    log_msg = f"Usuário: {usuario} realizou a ação: {acao}"
+    logging.info(log_msg)  # Registra a ação no log
+    print(log_msg)  # Opcional: mostra a ação no console também
+
 def tela_login():
     limpar_tela()
     
     def login():
+        global usuario_logado
         username = entry_username.get()
         password = entry_password.get()
-        
-        # Aqui você pode adicionar sua lógica de validação
-        if username == "admin" and password == "senha123":
-            # Chamar a função que exibe a tela principal
-            criar_tela_principal()
+
+        # Carregar os usuários do CSV
+        usuarios = carregar_usuarios_csv('Base/usuarios.csv')  # Ajuste o caminho do seu arquivo CSV aqui
+
+        # Procurar o usuário no CSV
+        usuario_encontrado = None
+        for usuario in usuarios:
+            if usuario['login'] == username and usuario['senha'] == password:
+                usuario_encontrado = usuario
+                break
+
+        if usuario_encontrado:
+            usuario_logado = usuario_encontrado['login']  # Agora armazenamos o login, e não o código
+            messagebox.showinfo("Sucesso", f"Bem-vindo, {usuario_logado}!")
+            registrar_acao(usuario_logado, "Login bem-sucedido")
+            tela_principal()  # Chama a tela principal
         else:
             messagebox.showerror("Erro", "Usuário ou senha incorretos.")
 
@@ -184,12 +211,12 @@ def tela_login():
     try:
         bg_image = Image.open("./Imagens/wallpaper.jpg")
         bg_image = bg_image.resize((1920, 1080), Image.LANCZOS)
-        bg_image_borrada = aplicar_desfoque(bg_image)  # Aplica desfoque
+        bg_image_borrada = aplicar_desfoque(bg_image)
         bg_photo = ImageTk.PhotoImage(bg_image_borrada)
 
         label_fundo = tk.Label(frame_fundo, image=bg_photo)
-        label_fundo.image = bg_photo  # Armazena uma referência da imagem
-        label_fundo.place(relwidth=1, relheight=1)  # Preenche o frame
+        label_fundo.image = bg_photo
+        label_fundo.place(relwidth=1, relheight=1)
 
     except Exception as e:
         print(f"Erro ao carregar a imagem de fundo: {e}")
@@ -218,7 +245,7 @@ def tela_login():
     frame_botao = ctk.CTkFrame(barra_superior, fg_color="#000000")
     frame_botao.pack(side=tk.RIGHT)
 
-    fullscreen_button = ctk.CTkButton(frame_botao, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white")
+    fullscreen_button = ctk.CTkButton(frame_botao, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40,font=("Arial", 12, "bold"))
     fullscreen_button.pack(padx=5, pady=5)
 
     frame_central = ctk.CTkFrame(app, fg_color="black", width=350, height=210)
@@ -256,14 +283,19 @@ def tela_login():
     frame_botoes = ctk.CTkFrame(frame_central, fg_color="black")
     frame_botoes.pack(pady=(10, 0))
 
-    button_sair = ctk.CTkButton(frame_botoes, text="Sair", command=sair, fg_color="#FF5722", hover_color="#E64A19")
+    button_sair = ctk.CTkButton(frame_botoes, text="Sair", command=sair, fg_color="#FF5722", hover_color="#E64A19",font=("Arial", 12, "bold"))
     button_sair.pack(side=ctk.LEFT, padx=(0, 10))
 
-    button_login = ctk.CTkButton(frame_botoes, text="Entrar", command=login, fg_color="#4CAF50", hover_color="#388E3C")
+    button_login = ctk.CTkButton(frame_botoes, text="Entrar", command=login, fg_color="#4CAF50", hover_color="#388E3C",font=("Arial", 12, "bold"))
     button_login.pack(side=ctk.LEFT)
 
-def criar_tela_principal():
+def tela_principal():
     limpar_tela()
+    
+    if usuario_logado:
+        mensagem_bem_vindo = f"Bem-vindo, {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Bem-vindo, visitante!"
     
     # Frame principal para o fundo
     frame_fundo = ctk.CTkFrame(app)
@@ -303,26 +335,38 @@ def criar_tela_principal():
         print(f"Erro ao carregar a logo: {e}")
         messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
 
-    # Frame para o botão de tela cheia, alinhado à direita
-    frame_botao = ctk.CTkFrame(barra_superior, fg_color="#000000")
-    frame_botao.pack(side=tk.RIGHT)
+    # Frame centralizado para o botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=10, anchor='center')
 
-    fullscreen_button = ctk.CTkButton(frame_botao, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white")
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40,  font=("Arial", 12, "bold"))
     fullscreen_button.pack(padx=5, pady=5)
+
+    # Frame para a mensagem de boas-vindas e o botão de deslogar
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
 
     # Frame pai para centralizar o content_frame
     frame_pai = ctk.CTkFrame(frame_fundo)
     frame_pai.pack(expand=True)
 
     # Frame que irá conter os widgets
-    content_frame = ctk.CTkFrame(frame_pai, fg_color="black")
+    content_frame = ctk.CTkFrame(frame_pai, fg_color="black", width=400, height=500)
+    content_frame.pack(padx=0, pady=0)  # Define as margens externas
+    
+    content_frame.pack_propagate(False)  # O frame não muda de tamanho com base no conteúdo
     content_frame.pack(pady=0)
 
-    label_selecao = tk.Label(content_frame, text="Escolha uma opção:", font=('Futura', 24, 'bold'), bg="black", fg="white")
-    label_selecao.pack(pady=10)
-
     # Frame para os botões
-    frame_botoes = ctk.CTkFrame(content_frame, fg_color="black")
+    frame_botoes = ctk.CTkFrame(content_frame, fg_color="black",)
     frame_botoes.pack(pady=10)
 
     # Organizando os botões
@@ -341,9 +385,28 @@ def criar_tela_principal():
         ("Controle de Vendas", tela_controle_vendas),
     ]
 
-    # Adicionando os botões ao frame
-    for texto, comando in botoes_clientes + botoes_servicos + botoes_estoque:
-        button = ctk.CTkButton(frame_botoes, text=texto, command=comando, fg_color="#4CAF50", hover_color="#388E3C")
+    # Adicionando os botões de Clientes
+    label_clientes = tk.Label(frame_botoes, text="Cliente", font=('Futura', 18, 'bold'), bg="black", fg="white")
+    label_clientes.pack(pady=(0, 0))
+
+    for texto, comando in botoes_clientes:
+        button = ctk.CTkButton(frame_botoes, text=texto, command=comando, fg_color="#4CAF50", hover_color="#388E3C", width=250, height=40,font=("Arial", 14, "bold"))
+        button.pack(pady=5)
+
+    # Adicionando os botões de Serviços
+    label_servicos = tk.Label(frame_botoes, text="Serviço", font=('Futura', 18, 'bold'), bg="black", fg="white")
+    label_servicos.pack(pady=(10, 0))
+
+    for texto, comando in botoes_servicos:
+        button = ctk.CTkButton(frame_botoes, text=texto, command=comando, fg_color="#4CAF50", hover_color="#388E3C", width=250, height=40,font=("Arial", 14, "bold"))
+        button.pack(pady=5)
+
+    # Adicionando os botões de Estoque
+    label_estoque = tk.Label(frame_botoes, text="Estoque", font=('Futura', 18, 'bold'), bg="black", fg="white")
+    label_estoque.pack(pady=(10, 0))
+
+    for texto, comando in botoes_estoque:
+        button = ctk.CTkButton(frame_botoes, text=texto, command=comando, fg_color="#4CAF50", hover_color="#388E3C", width=250, height=40,font=("Arial", 14, "bold"))
         button.pack(pady=5)
 
     # Frame para os botões de sair e deslogar
@@ -351,19 +414,17 @@ def criar_tela_principal():
     frame_sair.pack(pady=5)
 
     # Botão Sair
-    button_sair = ctk.CTkButton(frame_sair, text="Sair", command=sair, fg_color="#FF5722", hover_color="#E64A19")
+    button_sair = ctk.CTkButton(frame_sair, text="Sair", command=sair, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
     button_sair.pack(side=ctk.LEFT)
-
-    # Botão Deslogar
-    button_deslogar = ctk.CTkButton(frame_sair, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19")
-    button_deslogar.pack(side=ctk.LEFT, padx=5)
 
     # Centralizando o content_frame no frame_pai
     frame_pai.update_idletasks()
     frame_pai.pack(expand=True)
 
+
 def deslogar():
-    # Chama a função que limpa a tela atual e leva para a tela de login
+    global usuario_logado
+    usuario_logado = None  # Limpa o usuário logado
     limpar_tela()  # Limpa a tela atual
     tela_login()  # Chama a tela de login
 
@@ -476,7 +537,7 @@ def tela_controle_estoque():
         data_final = datetime.strptime(filtro_data_final, "%d/%m/%Y") if filtro_data_final else None
 
         # Carrega produtos do CSV
-        arquivo_csv = 'estoque.csv'
+        arquivo_csv = 'Base/estoque.csv'
         if os.path.isfile(arquivo_csv):
             with open(arquivo_csv, mode='r', newline='') as file:
                 reader = csv.reader(file)
@@ -502,7 +563,7 @@ def tela_controle_estoque():
     frame_botoes.pack(pady=10)
 
     # Botão de retornar
-    button_retornar = tk.Button(frame_botoes, text="Retornar", command=criar_tela_principal, bg='lightcoral', fg='black')
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_principal, bg='lightcoral', fg='black')
     button_retornar.pack(side=tk.LEFT, padx=5)
 
     # Botão para aplicar o filtro
@@ -617,7 +678,7 @@ def tela_cadastro_produto():
 
 # Função para carregar produtos do arquivo CSV
 def carregar_produtos_do_csv():
-    arquivo_csv = 'estoque.csv'
+    arquivo_csv = 'Base/estoque.csv'
     # Limpa os produtos existentes na treeview
     for item in tree.get_children():
         tree.delete(item)
@@ -649,7 +710,7 @@ def adicionar_produto(produto, fornecedor, quantidade, valor, data):
 
 # Função para gerar novo ID
 def gerar_novo_id():
-    arquivo_csv = 'estoque.csv'
+    arquivo_csv = 'Base/estoque.csv'
     if os.path.isfile(arquivo_csv):
         with open(arquivo_csv, mode='r') as file:
             reader = csv.reader(file)
@@ -661,7 +722,7 @@ def gerar_novo_id():
 
 # Função para salvar produto no CSV
 def salvar_no_csv(id, produto, fornecedor, quantidade, valor, data):
-    arquivo_csv = 'estoque.csv'
+    arquivo_csv = 'Base/estoque.csv'
     file_exists = os.path.isfile(arquivo_csv)
     with open(arquivo_csv, mode='a', newline='') as file:
         writer = csv.writer(file)
@@ -724,7 +785,7 @@ def aumentar_estoque():
 
 
 def salvar_venda(produto_id, produto_nome, fornecedor_nome, quantidade_venda, valor_venda, valor_compra, cliente_cpf, data_venda):
-    with open('vendas.csv', mode='a', newline='') as file:
+    with open('Base/vendas.csv', mode='a', newline='') as file:
         writer = csv.writer(file)
         writer.writerow([produto_id, produto_nome, fornecedor_nome, quantidade_venda, valor_venda, valor_compra, cliente_cpf, data_venda])
 
@@ -850,7 +911,7 @@ def realizar_venda():
     button_cancelar.pack(pady=5)
     
 def salvar_csv_atualizado():
-    arquivo_csv = 'estoque.csv'
+    arquivo_csv = 'Base/estoque.csv'
     with open(arquivo_csv, mode='w', newline='') as file:
         writer = csv.writer(file)
         writer.writerow(['ID', 'Produto', 'Fornecedor', 'Quantidade', 'Valor de Compra', 'Data'])  # Incluindo data no cabeçalho
@@ -862,7 +923,7 @@ def salvar_csv_atualizado():
 
 
 def remover_do_csv(produto_id):
-    arquivo_csv = 'estoque.csv'
+    arquivo_csv = 'Base/estoque.csv'
     produtos = []
 
     if os.path.isfile(arquivo_csv):
@@ -983,7 +1044,7 @@ def tela_controle_vendas():
         filtro_data_inicial = entry_data_inicial.get().strip()
         filtro_data_final = entry_data_final.get().strip()
 
-        arquivo_csv = 'vendas.csv'
+        arquivo_csv = 'Base/vendas.csv'
         if os.path.isfile(arquivo_csv):
             with open(arquivo_csv, mode='r', newline='') as file:
                 reader = csv.reader(file)
@@ -1014,7 +1075,7 @@ def tela_controle_vendas():
     frame_botoes.grid(row=10, columnspan=2, pady=5)
 
     # Botão de retornar
-    button_retornar = tk.Button(frame_botoes, text="Retornar", command=criar_tela_principal, bg='lightcoral', fg='black')
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_principal, bg='lightcoral', fg='black')
     button_retornar.pack(side=tk.LEFT, padx=5)
 
     # Botão para aplicar o filtro
@@ -1055,7 +1116,7 @@ def tela_controle_vendas():
 
     # Função para carregar vendas do arquivo CSV
     def carregar_vendas_do_csv():
-        arquivo_csv = 'vendas.csv'
+        arquivo_csv = 'Base/vendas.csv'
         for item in tree_vendas.get_children():
             tree_vendas.delete(item)
 
@@ -1235,7 +1296,7 @@ def tela_cadastro_servicos():
                                           font=('Arial', 14), bg='lightgreen', fg='black')
     button_adicionar_servico.pack(pady=5)
 
-    button_retornar = tk.Button(frame_cadastro_servicos, text="Retornar", command=criar_tela_principal,
+    button_retornar = tk.Button(frame_cadastro_servicos, text="Retornar", command=tela_principal,
                                 font=('Arial', 14), bg='lightcoral', fg='black')
     button_retornar.pack(pady=5)
 
@@ -1740,7 +1801,7 @@ def tela_listar_servicos():
     frame_botoes.pack(pady=5)
 
     # Botões
-    button_retornar = tk.Button(frame_botoes, text="Retornar", command=criar_tela_principal, bg='lightcoral', fg='black')
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_principal, bg='lightcoral', fg='black')
     button_retornar.pack(side=tk.LEFT, padx=(0, 10))
 
     button_filtrar = tk.Button(frame_botoes, text="Filtrar", command=aplicar_filtro, bg='lightgreen', fg='black')
@@ -2173,7 +2234,7 @@ def tela_cadastro():
     button_adicionar = tk.Button(frame_cadastro, text="Adicionar Cliente", command=adicionar_cliente, font=('Arial', 14), bg='lightgreen', fg='black')
     button_adicionar.pack(pady=5)
 
-    button_retornar = tk.Button(frame_cadastro, text="Retornar", command=criar_tela_principal, font=('Arial', 14), bg='lightcoral', fg='black')
+    button_retornar = tk.Button(frame_cadastro, text="Retornar", command=tela_principal, font=('Arial', 14), bg='lightcoral', fg='black')
     button_retornar.pack(pady=5)
 
     frame_cadastro.update_idletasks()
@@ -2376,7 +2437,7 @@ def tela_listar():
     button_editar.pack(side=tk.RIGHT, padx=5)
 
     # Botão de Retornar
-    button_retornar = tk.Button(frame_botoes, text="Retornar", command=criar_tela_principal, bg='lightcoral', fg='black')
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_principal, bg='lightcoral', fg='black')
     button_retornar.pack(side=tk.LEFT, padx=5)
 
     # Carrega os clientes na tabela sem filtro inicialmente
