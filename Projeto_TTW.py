@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, ttk
+from tkinter import messagebox, ttk, scrolledtext
 from datetime import datetime
 from tkcalendar import DateEntry
 from reportlab.pdfgen import canvas as pdf_canvas
@@ -175,7 +175,6 @@ logging.basicConfig(
 def registrar_acao(usuario, acao):
     log_msg = f"Usuário: {usuario} realizou a ação: {acao}"
     logging.info(log_msg)  # Registra a ação no log
-    print(log_msg)  # Opcional: mostra a ação no console também
 
 def tela_login():
     limpar_tela()
@@ -202,6 +201,7 @@ def tela_login():
             tela_principal()  # Chama a tela principal
         else:
             messagebox.showerror("Erro", "Usuário ou senha incorretos.")
+            registrar_acao("Login mal sucedido")
 
     # Frame principal para o fundo
     frame_fundo = ctk.CTkFrame(app)
@@ -288,15 +288,15 @@ def tela_login():
 
     button_login = ctk.CTkButton(frame_botoes, text="Entrar", command=login, fg_color="#4CAF50", hover_color="#388E3C",font=("Arial", 12, "bold"))
     button_login.pack(side=ctk.LEFT)
-
+    
 def tela_principal():
     limpar_tela()
-    
+
     if usuario_logado:
         mensagem_bem_vindo = f"Bem-vindo, {usuario_logado}!"
     else:
         mensagem_bem_vindo = "Bem-vindo, visitante!"
-    
+
     # Frame principal para o fundo
     frame_fundo = ctk.CTkFrame(app)
     frame_fundo.pack(fill=tk.BOTH, expand=True)
@@ -335,14 +335,25 @@ def tela_principal():
         print(f"Erro ao carregar a logo: {e}")
         messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
 
-    # Frame centralizado para o botão de tela cheia
-    frame_botao_fullscreen = ctk.CTkFrame(barra_superior, fg_color="#000000")
-    frame_botao_fullscreen.pack(side=tk.LEFT, padx=10, anchor='center')
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
 
-    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40,  font=("Arial", 12, "bold"))
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
     fullscreen_button.pack(padx=5, pady=5)
 
-    # Frame para a mensagem de boas-vindas e o botão de deslogar
+    # Botão de log-usuario
+    frame_botao_log = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_log.pack(side=tk.LEFT, padx=5)
+
+    log_button = ctk.CTkButton(frame_botao_log, text="Log-usuario", command=tela_log, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    log_button.pack(padx=5, pady=5)
+
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
     frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
     frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
 
@@ -366,7 +377,7 @@ def tela_principal():
     content_frame.pack(pady=0)
 
     # Frame para os botões
-    frame_botoes = ctk.CTkFrame(content_frame, fg_color="black",)
+    frame_botoes = ctk.CTkFrame(content_frame, fg_color="black")
     frame_botoes.pack(pady=10)
 
     # Organizando os botões
@@ -421,12 +432,62 @@ def tela_principal():
     frame_pai.update_idletasks()
     frame_pai.pack(expand=True)
 
-
 def deslogar():
     global usuario_logado
     usuario_logado = None  # Limpa o usuário logado
     limpar_tela()  # Limpa a tela atual
     tela_login()  # Chama a tela de login
+
+def tela_log():
+    # Função para ler o arquivo de log e atualizar a área de texto com filtro de usuário
+    def atualizar_logs(filtro_usuario=""):
+        try:
+            with open('Base/usuario_atividade.log', 'r') as file:
+                logs = file.readlines()
+
+            text_area.delete(1.0, tk.END)  # Limpa a área de texto
+
+            # Filtra logs pelo usuário (se o filtro estiver ativo)
+            if filtro_usuario:
+                logs = [log for log in logs if filtro_usuario.lower() in log.lower()]
+
+            # Inverte a ordem dos logs para mostrar do mais recente para o mais antigo
+            logs.reverse()
+
+            # Insere os logs filtrados ou todos os logs
+            for log in logs:
+                text_area.insert(tk.END, log)
+            
+        except FileNotFoundError:
+            text_area.delete(1.0, tk.END)
+            text_area.insert(tk.END, "Arquivo de log não encontrado.")
+
+    # Função chamada quando o filtro de usuário é alterado
+    def aplicar_filtro():
+        filtro_usuario = entry_usuario.get()
+        atualizar_logs(filtro_usuario)
+
+    # Criação da interface gráfica com Tkinter
+    root = tk.Tk()
+    root.title("Monitoramento de Logs")
+
+    # Área de texto para exibição dos logs (aumentando a largura e altura)
+    text_area = scrolledtext.ScrolledText(root, width=100, height=30, wrap=tk.WORD)
+    text_area.pack(padx=10, pady=10)
+
+    # Caixa de entrada para filtrar logs por usuário
+    label_usuario = tk.Label(root, text="Filtrar por usuário:")
+    label_usuario.pack(padx=10, pady=5)
+
+    entry_usuario = tk.Entry(root, width=50)
+    entry_usuario.pack(padx=10, pady=5)
+
+    # Botão para aplicar o filtro
+    button_aplicar_filtro = tk.Button(root, text="Aplicar Filtro", command=aplicar_filtro)
+    button_aplicar_filtro.pack(padx=10, pady=10)
+
+    # Iniciar o monitoramento de logs sem filtro inicial
+    atualizar_logs()
 
 #Estoque
 def tela_controle_estoque():
