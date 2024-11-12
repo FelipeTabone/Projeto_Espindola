@@ -312,9 +312,21 @@ def tela_login():
 
     button_login = ctk.CTkButton(frame_botoes, text="Entrar", command=login, fg_color="#4CAF50", hover_color="#388E3C",font=("Arial", 12, "bold"))
     button_login.pack(side=ctk.LEFT)
+
+tempo_cronometro = 3600  # Tempo do cronômetro em segundos
     
+def exibir_cronometro():
+    global tempo_cronometro
+    if tempo_cronometro > 0:
+        tempo_cronometro -= 1
+        app.after(1000, exibir_cronometro)  # Chama novamente a função após 1 segundo
+    else:
+        tela_login()  # Redireciona para a tela de login quando o tempo acabar    
+
 def tela_principal():
     limpar_tela()
+
+    global tempo_cronometro  # Acessar a variável global para poder resetar o cronômetro
 
     if usuario_logado:
         mensagem_bem_vindo = f"Bem-vindo, {usuario_logado}!"
@@ -388,6 +400,10 @@ def tela_principal():
     # Botão Deslogar à direita da mensagem de boas-vindas
     button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
     button_deslogar.pack(side=tk.LEFT, padx=10)
+
+    global tempo_cronometro
+    tempo_cronometro = 3600  # Resetando o cronômetro antes de iniciar
+    exibir_cronometro()  # Iniciar o cronômetro sem exibi-lo na interface
 
     # Frame pai para centralizar o content_frame
     frame_pai = ctk.CTkFrame(frame_fundo)
