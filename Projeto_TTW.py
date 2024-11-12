@@ -96,6 +96,21 @@ def carregar_servicos():
     
 backup_running = True
 
+def contar_linhas(caminho):
+    # Tenta abrir o arquivo com diferentes codificações
+    try:
+        with open(caminho, 'r', encoding='utf-8') as f:
+            return sum(1 for line in f)
+    except UnicodeDecodeError:
+        # Se ocorrer erro, tenta com 'ISO-8859-1'
+        try:
+            with open(caminho, 'r', encoding='ISO-8859-1') as f:
+                return sum(1 for line in f)
+        except Exception as e:
+            print(f"Erro ao ler o arquivo {caminho}: {e}")
+            return 0  # Retorna 0 caso não consiga contar as linhas
+
+
 def realizar_backup(caminhos_db, caminho_backup):
     print("Backup thread iniciada.")
     
@@ -117,15 +132,24 @@ def realizar_backup(caminhos_db, caminho_backup):
                 linhas_original = contar_linhas(caminho_db)
                 linhas_backup = 0
 
-                # Verifica se há um backup recente
+                backups_encontrados = []
+
+                # Verifica se há backups existentes e armazena os caminhos
                 for backup_file in os.listdir(caminho_backup):
                     if backup_file.startswith("backup_") and backup_file.endswith(os.path.basename(caminho_db)):
                         caminho_backup_antigo = os.path.join(caminho_backup, backup_file)
-                        linhas_backup = contar_linhas(caminho_backup_antigo)
-                        print(f"Backup existente encontrado: {caminho_backup_antigo} com {linhas_backup} linhas.")
-                        break  # Pula para a verificação de linha a seguir
+                        backups_encontrados.append(caminho_backup_antigo)
 
-                # Se a diferença de linhas for menor que 5, não faz backup
+                # Se houver backups, ordena-os por nome (timestamp) para pegar o mais recente
+                if backups_encontrados:
+                    backups_encontrados.sort(reverse=True)  # Ordena do mais recente para o mais antigo
+                    caminho_backup_antigo = backups_encontrados[0]
+                    linhas_backup = contar_linhas(caminho_backup_antigo)
+                    print(f"Backup existente encontrado: {caminho_backup_antigo} com {linhas_backup} linhas.")
+                else:
+                    print(f"Nenhum backup encontrado para {caminho_db}.")
+
+                # Se a diferença de linhas for menor que 1, não faz backup
                 if abs(linhas_original - linhas_backup) < 1:
                     print(f"Não foi necessário realizar backup de {caminho_db}. Diferença de linhas: {abs(linhas_original - linhas_backup)}.")
                     continue  # Continua para o próximo arquivo
@@ -350,7 +374,7 @@ def tela_principal():
     frame_botao_log = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
     frame_botao_log.pack(side=tk.LEFT, padx=5)
 
-    log_button = ctk.CTkButton(frame_botao_log, text="Log-usuario", command=tela_log, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    log_button = ctk.CTkButton(frame_botao_log, text="Monitoramento", command=tela_log, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
     log_button.pack(padx=5, pady=5)
 
     # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
@@ -472,11 +496,11 @@ def tela_log():
     root.title("Monitoramento de Logs")
 
     # Área de texto para exibição dos logs (aumentando a largura e altura)
-    text_area = scrolledtext.ScrolledText(root, width=100, height=30, wrap=tk.WORD)
+    text_area = scrolledtext.ScrolledText(root, width=150, height=30, wrap=tk.WORD)
     text_area.pack(padx=10, pady=10)
 
     # Caixa de entrada para filtrar logs por usuário
-    label_usuario = tk.Label(root, text="Filtrar por usuário:")
+    label_usuario = tk.Label(root, text="Filtrar:")
     label_usuario.pack(padx=10, pady=5)
 
     entry_usuario = tk.Entry(root, width=50)
@@ -492,6 +516,52 @@ def tela_log():
 #Estoque
 def tela_controle_estoque():
     limpar_tela()
+
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
 
     # Frame principal com scrollbar
     main_frame = tk.Frame(app, bg="dimgray")
@@ -519,7 +589,7 @@ def tela_controle_estoque():
     content_frame.bind("<Configure>", configure_scroll_region)
 
     # Título
-    label_titulo = tk.Label(content_frame, text="Controle de Estoque", font=('Arial', 24, 'bold'), bg="dimgray", fg="black")
+    label_titulo = tk.Label(content_frame, text="Controle de Estoque", font=('Arial', 18, 'bold'), bg="dimgray", fg="black")
     label_titulo.pack(pady=10)
     
     # Frame para os campos de filtro
@@ -766,6 +836,7 @@ def adicionar_produto(produto, fornecedor, quantidade, valor, data):
         novo_id = gerar_novo_id()
         tree.insert("", tk.END, values=(novo_id, produto, fornecedor, quantidade, valor_formatado, data))
         salvar_no_csv(novo_id, produto, fornecedor, quantidade, valor_float, data)  # Salva sem o "R$"
+        registrar_acao(usuario_logado, f"Adicionado produto. {produto}, Quantidade: {quantidade}")
     else:
         messagebox.showerror("Erro", "Por favor, insira dados válidos.")
 
@@ -801,6 +872,7 @@ def aumentar_estoque():
     produto_id = produto_selecionado['values'][0]
     produto_nome = produto_selecionado['values'][1]
     quantidade_atual = int(produto_selecionado['values'][3])
+    data_atual = produto_selecionado['values'][5]  # Preserva o campo de data, agora no índice 5
 
     # Cria uma nova janela para coletar a quantidade a ser adicionada
     janela_aumento = tk.Toplevel(app)
@@ -819,22 +891,60 @@ def aumentar_estoque():
 
     def confirmar_aumento():
         try:
+            # Obtém a quantidade a ser adicionada
             quantidade_a_adicionar = int(entry_quantidade_aumento.get())
+
+            # Verifica se a quantidade é válida (maior que zero)
             if quantidade_a_adicionar <= 0:
                 messagebox.showerror("Erro", "Quantidade deve ser maior que zero.")
                 return
 
+            # Calcula a nova quantidade
             nova_quantidade = quantidade_atual + quantidade_a_adicionar
-            tree.item(selected_item, values=(produto_id, produto_nome, produto_selecionado['values'][2], nova_quantidade, produto_selecionado['values'][4]))
 
-            # Salvar a nova quantidade no CSV
+            # Verifica se a quantidade atual é válida
+            if nova_quantidade < 0:
+                messagebox.showerror("Erro", "A quantidade não pode ser negativa.")
+                return
+
+            # Verifica se o item selecionado na árvore está correto
+            if not selected_item:
+                messagebox.showerror("Erro", "Nenhum item selecionado.")
+                return
+
+            # Garantir que produto_selecionado tenha dados suficientes para evitar o IndexError
+            if len(produto_selecionado['values']) < 6:  # A árvore tem 6 colunas
+                messagebox.showerror("Erro", "Informações do produto incompletas.")
+                return
+
+            # Atualiza a árvore com a nova quantidade, preservando o campo de data
+            tree.item(selected_item, values=(
+                produto_id, 
+                produto_nome, 
+                produto_selecionado['values'][2],  # Mantém o fornecedor ou outro campo
+                nova_quantidade,  # Atualiza a quantidade
+                produto_selecionado['values'][4],  # Mantém o valor de compra
+                data_atual  # Preserva a data
+            ))
+
+            # Salva a nova quantidade no CSV
             salvar_csv_atualizado()
 
+            # Exibe uma mensagem de sucesso
             messagebox.showinfo("Sucesso", f"Estoque de '{produto_nome}' aumentado em {quantidade_a_adicionar} unidades.")
-            janela_aumento.destroy()  # Fecha a janela de aumento
+
+            # Fecha a janela de aumento
+            janela_aumento.destroy()
+
+            # Registra a ação do usuário
+            registrar_acao(usuario_logado, f"Aumentado estoque. {produto_nome}, Quantidade aumentada: {quantidade_a_adicionar}, nova quantidade: {nova_quantidade}")
 
         except ValueError:
+            # Caso o valor inserido não seja um número válido
             messagebox.showerror("Erro", "Por favor, insira uma quantidade válida.")
+        except Exception as e:
+            # Captura outros erros inesperados e exibe a mensagem
+            messagebox.showerror("Erro", f"Ocorreu um erro inesperado: {str(e)}")
 
     # Botão para confirmar o aumento
     button_confirmar = tk.Button(janela_aumento, text="Confirmar Aumento", command=confirmar_aumento, bg='lightgreen', fg='black')
@@ -961,6 +1071,8 @@ def realizar_venda():
 
             messagebox.showinfo("Sucesso", f"Venda de {quantidade_venda} unidades de '{produto_nome}' realizada com sucesso para o cliente {cliente_cpf}.")
             janela_venda.destroy()
+            
+            registrar_acao(usuario_logado, f"Realizado venda. Produto: {produto_nome}, Quantidade vendida: {quantidade_venda}")
 
         except ValueError:
             messagebox.showerror("Erro", "Por favor, insira valores válidos.")
@@ -970,18 +1082,43 @@ def realizar_venda():
 
     button_cancelar = tk.Button(janela_venda, text="Cancelar", command=janela_venda.destroy, bg='lightcoral', fg='black')
     button_cancelar.pack(pady=5)
-    
+
 def salvar_csv_atualizado():
     arquivo_csv = 'Base/estoque.csv'
+    
     with open(arquivo_csv, mode='w', newline='') as file:
         writer = csv.writer(file)
-        writer.writerow(['ID', 'Produto', 'Fornecedor', 'Quantidade', 'Valor de Compra', 'Data'])  # Incluindo data no cabeçalho
+        
+        # Cabeçalho do CSV (ID, Produto, Fornecedor, Quantidade, Valor de Compra, Data)
+        writer.writerow(['ID', 'Produto', 'Fornecedor', 'Quantidade', 'Valor de Compra', 'Data'])
+        
         for item in tree.get_children():
             values = tree.item(item)['values']
-            # Converte o valor de compra para o formato numérico correto
-            valor_compra = float(values[4].replace('R$', '').replace(' ', '').replace(',', '.'))
-            writer.writerow([values[0], values[1], values[2], values[3], valor_compra, values[5]])  # Inclui data
+            
+            # Verifica se o item tem pelo menos 5 valores válidos antes de continuar (ID, Produto, Fornecedor, Quantidade, Valor de Compra)
+            if len(values) < 5:
+                print(f"Item com dados incompletos (faltando ID, Produto, Fornecedor, Quantidade ou Valor de Compra): {values}")  # Depuração
+                continue  # Ignora este item, pois ele está incompleto
+            
+            # Extraímos os valores individuais
+            produto_id = values[0]
+            produto_nome = values[1]
+            fornecedor = values[2]
+            quantidade = values[3]
+            valor_compra = values[4]
+            data = values[5] if len(values) > 5 else ''  # Verifica se a data está presente, se não, atribui uma string vazia
 
+            # Garantir que o valor de compra esteja no formato numérico correto
+            try:
+                valor_compra = float(valor_compra.replace('R$', '').replace(' ', '').replace(',', '.'))
+            except ValueError:
+                valor_compra = 0.0  # Se houver erro na conversão, coloca 0.0 como valor
+
+            # Se a data está presente, preserva a data original sem alterações
+            data_formatada = data if data else ''  # Se a data estiver presente, mantém ela como está. Caso contrário, deixa vazia
+
+            # Escreve os dados no arquivo CSV
+            writer.writerow([produto_id, produto_nome, fornecedor, quantidade, valor_compra, data_formatada])
 
 def remover_do_csv(produto_id):
     arquivo_csv = 'Base/estoque.csv'
@@ -1002,6 +1139,52 @@ def remover_do_csv(produto_id):
         
 def tela_controle_vendas():
     limpar_tela()
+    
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
 
     # Frame principal com scrollbar
     main_frame = tk.Frame(app, bg="dimgray")
@@ -1205,6 +1388,52 @@ def tela_controle_vendas():
 def tela_cadastro_servicos():
     limpar_tela()
 
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
+
     # Frame principal com scrollbar
     frame_principal = tk.Frame(app, bg="dimgray")
     frame_principal.pack(expand=True, fill=tk.BOTH)
@@ -1345,7 +1574,13 @@ def tela_cadastro_servicos():
     check_garantia = tk.Checkbutton(frame_cadastro_servicos, variable=var_garantia, bg="dimgray")
     check_garantia.pack(pady=5)
 
-    button_adicionar_servico = tk.Button(frame_cadastro_servicos, text="Adicionar Serviço",
+    frame_botoes = tk.Frame(frame_cadastro_servicos, bg="dimgray")
+    frame_botoes.pack(pady=20)
+
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_principal, bg='lightcoral', fg='black')
+    button_retornar.pack(side=tk.LEFT, padx=5)
+
+    button_adicionar_servico = tk.Button(frame_botoes, text="Adicionar Serviço",
                                           command=lambda: adicionar_servico(label_codigo_exibicao.cget("text"),
                                                                             entry_observacao.get("1.0", tk.END).strip(),
                                                                             combo_status.get(),
@@ -1354,12 +1589,8 @@ def tela_cadastro_servicos():
                                                                             entry_equipamento.get(),
                                                                             entry_marca.get(),
                                                                             var_garantia.get()),  # Passa o valor do Checkbutton
-                                          font=('Arial', 14), bg='lightgreen', fg='black')
-    button_adicionar_servico.pack(pady=5)
-
-    button_retornar = tk.Button(frame_cadastro_servicos, text="Retornar", command=tela_principal,
-                                font=('Arial', 14), bg='lightcoral', fg='black')
-    button_retornar.pack(pady=5)
+                                        bg='lightgreen', fg='black')
+    button_adicionar_servico.pack(side=tk.LEFT, padx=5)
 
     # Centralizando o frame_cadastro_servicos no canvas
     frame_cadastro_servicos.update_idletasks()  # Atualiza o tamanho do frame
@@ -1479,6 +1710,8 @@ def adicionar_servico(codigo, observacao, status, data_hora, cpf, equipamento, m
     entry_equipamento.delete(0, tk.END)  # Limpa o campo de equipamento
     entry_marca.delete(0, tk.END)  # Limpa o campo de marca
     var_garantia.set(False)  # Reseta o Checkbutton
+
+    registrar_acao(usuario_logado, f"Serviço criado. OS: {codigo}, Cliente: {nome_cliente}, CPF/CNPJ: {cpf_normalizado}")
 
     # Atualiza a tabela de serviços
     carregar_servicos_na_tabela()
@@ -1624,6 +1857,8 @@ def gerar_pdf(codigo):
             # Salvar o PDF
             with open(output_pdf_path, "wb") as outputStream:
                 writer.write(outputStream)
+                
+            registrar_acao(usuario_logado, f"Gerou PDF/Imprimiu PDF. OS: {codigo}")
 
             messagebox.showinfo("PDF Gerado", f"Arquivo {output_pdf_path} gerado com sucesso!")
             return output_pdf_path  # Retorna o caminho do PDF gerado
@@ -1655,7 +1890,7 @@ def imprimir_pdf(codigo):
                 messagebox.showerror("Erro", f"Erro ao enviar PDF para impressão: {e}")
     else:
         messagebox.showerror("Erro", "O PDF para impressão não foi encontrado.")
-        
+
 def enviar_mensagem_whatsapp():
     try:
         item_selecionado = tree_servicos.selection()
@@ -1749,6 +1984,10 @@ def enviar_mensagem_whatsapp():
                                  f"Infelizmente não será possível efetuar o serviço. Obrigado.😔"
 
             kit.sendwhatmsg_instantly(celular_cliente, mensagem_final, 10)  # Aguarda 1 segundo
+            
+             # Registrar a ação de envio de mensagem
+            registrar_acao(usuario_logado, f"Enviou mensagem WhatsApp. OS: {codigo_servico}, Celular: {celular_cliente}")
+            
             window.destroy()  # Fecha a janela após enviar
 
         escolher_mensagem()  # Chama a função para abrir a janela de seleção
@@ -1758,6 +1997,52 @@ def enviar_mensagem_whatsapp():
 
 def tela_listar_servicos():
     limpar_tela()
+
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
 
     if not servicos:
         messagebox.showinfo("Lista de Serviços", "Nenhum serviço cadastrado.")
@@ -2035,6 +2320,52 @@ def tela_editar_servico(codigo_servico):
     # Limpa a tela anterior
     limpar_tela()
 
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
+
     # Criação de um Frame principal com scrollbar
     main_frame = tk.Frame(app, bg="dimgray")
     main_frame.pack(expand=True, fill=tk.BOTH)
@@ -2126,11 +2457,14 @@ def tela_editar_servico(codigo_servico):
     combo_garantia = ttk.Combobox(frame, values=["Sim", "Não"], font=('Arial', 14), state="readonly")
     combo_garantia.pack(pady=5)
 
-    button_atualizar_servico = tk.Button(frame, text="Atualizar Serviço", command=atualizar_servico, font=('Arial', 14), bg='lightgreen', fg='black')
-    button_atualizar_servico.pack(pady=5)
+    frame_botoes = tk.Frame(frame, bg="dimgray")
+    frame_botoes.pack(pady=20)
 
-    button_retornar = tk.Button(frame, text="Retornar", command=tela_listar_servicos, font=('Arial', 14), bg='lightcoral', fg='black')
-    button_retornar.pack(pady=5)
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_listar_servicos, bg='lightcoral', fg='black')
+    button_retornar.pack(side=tk.LEFT, padx=5)
+
+    button_atualizar_servico = tk.Button(frame_botoes, text="Atualizar Serviço", command=atualizar_servico, bg='lightgreen', fg='black')
+    button_atualizar_servico.pack(side=tk.LEFT, padx=5)
 
     # Preenche os campos com as informações do serviço, se encontrado
     for servico in servicos:
@@ -2203,6 +2537,8 @@ def atualizar_servico():
                 salvar_servicos()  # Certifique-se de que esta função salva corretamente
                 messagebox.showinfo("Sucesso", "Serviço atualizado com sucesso!")
                 
+                registrar_acao(usuario_logado, f"Serviço editado. OS: {codigo_servico_antigo}")
+                
                 # Limpeza dos campos
                 limpar_campos()  # Função para limpar os campos
                 tela_listar_servicos()  # Atualiza a lista após a edição
@@ -2225,6 +2561,52 @@ def limpar_campos():
 #Cliente
 def tela_cadastro():
     limpar_tela()
+    
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
 
     # Frame principal com scrollbar
     frame_principal = tk.Frame(app, bg="dimgray")
@@ -2292,11 +2674,15 @@ def tela_cadastro():
 
     entry_cpf.bind("<KeyRelease>", lambda event: formatar_input_documento_cadastro(entry_cpf))
 
-    button_adicionar = tk.Button(frame_cadastro, text="Adicionar Cliente", command=adicionar_cliente, font=('Arial', 14), bg='lightgreen', fg='black')
-    button_adicionar.pack(pady=5)
+     # Frame para os botões "Cadastrar Cliente" e "Retornar"
+    frame_botoes = tk.Frame(frame_cadastro, bg="dimgray")
+    frame_botoes.pack(pady=20)
 
-    button_retornar = tk.Button(frame_cadastro, text="Retornar", command=tela_principal, font=('Arial', 14), bg='lightcoral', fg='black')
-    button_retornar.pack(pady=5)
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_principal, bg='lightcoral', fg='black')
+    button_retornar.pack(side=tk.LEFT, padx=5)
+
+    button_adicionar = tk.Button(frame_botoes, text="Cadastrar Cliente", command=adicionar_cliente, bg='lightgreen', fg='black')
+    button_adicionar.pack(side=tk.LEFT, padx=5)
 
     frame_cadastro.update_idletasks()
     width = frame_cadastro.winfo_width()
@@ -2338,6 +2724,8 @@ def adicionar_cliente():
     entry_celular.delete(0, tk.END)
     entry_celular2.delete(0, tk.END)  # Limpa o campo celular 2
     entry_cpf.delete(0, tk.END)
+    
+    registrar_acao(usuario_logado, f"Criar o cliente: {nome}, CPF/CNPJ: {documento}")
 
 def formatar_input_documento_cadastro(entry):
     """
@@ -2393,6 +2781,52 @@ def formatar_input_documento(event):
 
 def tela_listar():
     limpar_tela()
+    
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
 
     if not clientes:
         messagebox.showinfo("Lista de Clientes", "Nenhum cliente cadastrado.")
@@ -2594,6 +3028,52 @@ def editar_cliente_selecionado():
 def tela_editar_cliente(cpf, nome, celular, celular2):
     limpar_tela()
     
+    if usuario_logado:
+        mensagem_bem_vindo = f"Usuario: {usuario_logado}!"
+    else:
+        mensagem_bem_vindo = "Usuario: visitante!"
+
+    # Frame da barra superior preta
+    barra_superior = tk.Frame(app, bg="black", height=40)
+    barra_superior.pack(fill=tk.X, side=tk.TOP)
+
+    frame_logo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_logo.pack(side=tk.LEFT, padx=10)
+    
+    try:
+        logo_image = Image.open("./Imagens/logo.png")
+        logo_image = logo_image.resize((350, 50), Image.LANCZOS)
+        logo = ImageTk.PhotoImage(logo_image)
+        label_logo = tk.Label(frame_logo, image=logo, bg="#000000")
+        label_logo.image = logo
+        label_logo.pack(side=tk.LEFT, padx=5, pady=5)
+    except Exception as e:
+        print(f"Erro ao carregar a logo: {e}")
+        messagebox.showerror("Erro", "Não foi possível carregar a imagem da logo.")
+
+    # Frame para os botões (Tela Cheia e Log) à esquerda da logo
+    frame_botoes_superior = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_botoes_superior.pack(side=tk.LEFT, padx=10, anchor='center')
+
+    # Botão de tela cheia
+    frame_botao_fullscreen = ctk.CTkFrame(frame_botoes_superior, fg_color="#000000")
+    frame_botao_fullscreen.pack(side=tk.LEFT, padx=5)
+
+    fullscreen_button = ctk.CTkButton(frame_botao_fullscreen, text="Tela Cheia/Janela", command=toggle_fullscreen, fg_color="#4CAF50", text_color="white", width=150, height=40, font=("Arial", 12, "bold"))
+    fullscreen_button.pack(padx=5, pady=5)
+    
+    # Frame para a mensagem de boas-vindas e o botão de deslogar à direita
+    frame_bem_vindo = ctk.CTkFrame(barra_superior, fg_color="#000000")
+    frame_bem_vindo.pack(side=tk.RIGHT, padx=10)
+
+    # Mensagem de boas-vindas
+    label_bem_vindo = ctk.CTkLabel(frame_bem_vindo, text=mensagem_bem_vindo, font=("Helvetica", 18), fg_color="transparent", text_color="white")
+    label_bem_vindo.pack(side=tk.LEFT)
+
+    # Botão Deslogar à direita da mensagem de boas-vindas
+    button_deslogar = ctk.CTkButton(frame_bem_vindo, text="Deslogar", command=deslogar, fg_color="#FF5722", hover_color="#E64A19", width=120, height=40,font=("Arial", 12, "bold"))
+    button_deslogar.pack(side=tk.LEFT, padx=10)
+    
     # Cria um Frame principal com scrollbar
     main_frame = tk.Frame(app, bg="dimgray")
     main_frame.pack(expand=True, fill=tk.BOTH)
@@ -2660,16 +3140,20 @@ def tela_editar_cliente(cpf, nome, celular, celular2):
     entry_celular2.pack(pady=5)
     entry_celular2.insert(0, celular2)  # Preenche o campo com o Celular 2
 
-    button_atualizar = tk.Button(frame, text="Atualizar Cliente", command=atualizar_cliente, font=('Arial', 14), bg='lightgreen', fg='black')
-    button_atualizar.pack(pady=5)
+    # Frame para os botões "Atualizar Cliente" e "Retornar"
+    frame_botoes = tk.Frame(frame, bg="dimgray")
+    frame_botoes.pack(pady=20)
 
-    button_retornar = tk.Button(frame, text="Retornar", command=tela_listar, font=('Arial', 14), bg='lightcoral', fg='black')
-    button_retornar.pack(pady=5)
+    button_retornar = tk.Button(frame_botoes, text="Retornar", command=tela_listar, bg='lightcoral', fg='black')
+    button_retornar.pack(side=tk.LEFT, padx=5)
+
+    button_atualizar = tk.Button(frame_botoes, text="Atualizar Cliente", command=atualizar_cliente, bg='lightgreen', fg='black')
+    button_atualizar.pack(side=tk.LEFT, padx=5)
 
     # Centralizando o frame no canvas
     frame.update_idletasks()  # Atualiza o tamanho do frame
     canvas.create_window((canvas.winfo_width() // 2, 0), window=frame, anchor="n")  # Ajusta a posição do frame
-
+    
 def atualizar_cliente():
     global cpf_antigo, celular_antigo  # Certifique-se de que as variáveis globais estão declaradas
 
@@ -2715,6 +3199,8 @@ def atualizar_cliente():
     entry_nome.delete(0, tk.END)
     entry_celular.delete(0, tk.END)
     entry_celular2.delete(0, tk.END)  # Limpa o campo celular 2
+    
+    registrar_acao(usuario_logado, f"Edição de cliente. Nome: {nome}, CPF/CNPJ: {cpf_sem_formatacao}")
 
     # Retorna à lista de clientes
     tela_listar()

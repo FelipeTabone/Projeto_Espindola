@@ -1,11 +1,47 @@
-2024-11-05 22:56:44,971 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 22:56:51,831 - Usuário: duda realizou a ação: Login bem-sucedido
-2024-11-05 23:05:29,069 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:12:01,392 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:13:29,635 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:19:47,530 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:21:16,801 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:22:07,621 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:23:30,517 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:24:04,725 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-05 23:28:13,877 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:03:02,843 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:03:38,637 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:04:05,395 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:04:42,873 - Usuário: admin realizou a ação: Edição de cliente. Nome: Teste2, CPF/CNPJ: 77777777777
+2024-11-08 22:06:15,545 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:06:34,531 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:06:56,037 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:07:17,117 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:07:49,147 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:10:09,291 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:10:23,055 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-08 22:11:29,219 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-08 22:15:22,098 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:15:26,652 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:17:42,053 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:20:06,516 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:20:16,900 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:21:53,181 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:22:03,725 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:22:14,226 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 12
+2024-11-11 22:23:21,126 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:23:30,285 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:23:35,076 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 12
+2024-11-11 22:24:52,110 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:25:06,135 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:25:10,341 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 12
+2024-11-11 22:26:19,079 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:26:29,375 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:26:34,344 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 12
+2024-11-11 22:26:39,321 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 62
+2024-11-11 22:27:40,344 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:28:34,090 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:28:53,232 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:29:00,766 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 10, nova quantidade: 20
+2024-11-11 22:29:51,954 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:30:00,135 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:30:05,239 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 10, nova quantidade: 20
+2024-11-11 22:32:26,202 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:32:34,365 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 10
+2024-11-11 22:32:39,783 - Usuário: admin realizou a ação: Aumentado estoque. teste, Quantidade aumentada: 10, nova quantidade: 20
+2024-11-11 22:34:00,785 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:34:17,576 - Usuário: admin realizou a ação: Realizado venda. Produto: teste, Quantidade vendida: 5
+2024-11-11 22:42:21,076 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:46:24,597 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:47:29,636 - Usuário: admin realizou a ação: Login bem-sucedido
+2024-11-11 22:47:44,942 - Usuário: admin realizou a ação: Adicionado produto. teste, Quantidade: 50
+2024-11-11 22:49:41,790 - Usuário: admin realizou a ação: Login bem-sucedido
