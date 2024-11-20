@@ -1,10 +1,13 @@
-2024-11-12 21:46:55,454 - Usuário: admin realizou a ação: Login bem-sucedido
-2024-11-12 21:47:13,210 - Usuário: admin realizou a ação: Criar o cliente: Felipe Andrade Tabone, CPF/CNPJ: 13158380951
-2024-11-12 21:47:54,026 - Usuário: admin realizou a ação: Edição de cliente. Nome: Felipe Andrade Tabone, CPF/CNPJ: 13158380951
-2024-11-12 21:50:10,635 - Usuário: admin realizou a ação: Serviço criado. OS: 00001, Cliente: Felipe Andrade Tabone, CPF/CNPJ: 13158380951
-2024-11-12 21:50:49,982 - Usuário: admin realizou a ação: Serviço editado. OS: 00001
-2024-11-12 21:51:17,492 - Usuário: admin realizou a ação: Enviou mensagem WhatsApp. OS: 00001, Celular: +5548999619517
-2024-11-12 21:52:11,878 - Usuário: admin realizou a ação: Gerou PDF/Imprimiu PDF. OS: 00001
-2024-11-12 21:52:52,159 - Usuário: admin realizou a ação: Adicionado produto. Porta, Quantidade: 10
-2024-11-12 21:52:58,988 - Usuário: admin realizou a ação: Aumentado estoque. Porta, Quantidade aumentada: 2, nova quantidade: 12
-2024-11-12 21:53:35,591 - Usuário: admin realizou a ação: Realizado venda. Produto: Porta, Quantidade vendida: 10
+2024-11-13 21:49:38,428 - Usuário: matheus_espindola realizou a ação: Login bem-sucedido
+2024-11-13 21:50:35,582 - Usuário: matheus_espindola realizou a ação: Criar o cliente: Felipe Andrade Tabone, CPF/CNPJ: 13158380951
+2024-11-13 21:51:18,397 - Usuário: matheus_espindola realizou a ação: Edição de cliente. Nome: Felipe Andrade Tabone, CPF/CNPJ: 13158380951
+2024-11-13 21:54:19,394 - Usuário: matheus_espindola realizou a ação: Serviço criado. OS: 00001, Cliente: Felipe Andrade Tabone, CPF/CNPJ: 13158380951
+2024-11-13 21:55:45,953 - Usuário: matheus_espindola realizou a ação: Enviou mensagem WhatsApp. OS: 00001, Celular: +5548999619517
+2024-11-13 21:56:52,746 - Usuário: matheus_espindola realizou a ação: Serviço editado. OS: 00001
+2024-11-13 21:57:21,177 - Usuário: matheus_espindola realizou a ação: Gerou PDF/Imprimiu PDF. OS: 00001
+2024-11-13 22:06:22,223 - Usuário: matheus_espindola realizou a ação: Adicionado produto. Porta Geladeira, Quantidade: 10
+2024-11-13 22:06:43,337 - Usuário: matheus_espindola realizou a ação: Aumentado estoque. Porta Geladeira, Quantidade aumentada: 5, nova quantidade: 15
+2024-11-13 22:07:03,807 - Usuário: matheus_espindola realizou a ação: Adicionado produto. Porta Geladeira, Quantidade: 10
+2024-11-13 22:07:44,599 - Usuário: matheus_espindola realizou a ação: Realizado venda. Produto: Porta Geladeira, Quantidade vendida: 5
+2024-11-13 22:08:00,860 - Usuário: matheus_espindola realizou a ação: Realizado venda. Produto: Porta Geladeira, Quantidade vendida: 5
+2024-11-17 15:40:38,151 - Usuário: admin realizou a ação: Login bem-sucedido
